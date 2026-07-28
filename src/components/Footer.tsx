@@ -1,4 +1,5 @@
 import { Globe, X, MapPin, Phone, Mail } from "lucide-react";
+import RotatingPhoneDisplay from "@/components/RotatingPhoneDisplay";
 
 export default function Footer() {
   return (
@@ -26,8 +27,15 @@ export default function Footer() {
         <div>
           <h4 className="text-white font-serif text-lg mb-6 uppercase tracking-wider">The Firm</h4>
           <ul className="space-y-2">
-            {["Attorneys & Staff", "Firm History", "Careers", "News & Insights"].map(item => (
-              <li key={item}><a href="#" className="text-gray-400 text-sm hover:text-yellow-500 transition-colors block mb-2">{item}</a></li>
+            {[
+              { label: "Attorneys & Staff", href: "/attorneys" },
+              { label: "Firm History", href: "/history" },
+              { label: "Events & Symposia", href: "/events" },
+              { label: "Careers", href: "/careers" }
+            ].map(item => (
+              <li key={item.label}>
+                <a href={item.href} className="text-gray-400 text-sm hover:text-yellow-500 transition-colors block mb-2">{item.label}</a>
+              </li>
             ))}
           </ul>
         </div>
@@ -40,7 +48,7 @@ export default function Footer() {
             </li>
             <li className="flex items-center">
               <Phone className="w-4 h-4 text-yellow-500 mr-3 shrink-0" />
-              <span>+254116171396</span>
+              <RotatingPhoneDisplay className="text-yellow-500 font-medium hover:underline" />
             </li>
             <li className="flex items-center">
               <Mail className="w-4 h-4 text-yellow-500 mr-3 shrink-0" />

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase";
-import { AUTHORIZED_USERS, FirmUser } from "./users";
+import { fetchFirmUser, FirmUser } from "./users";
 
 interface AuthContextType {
   firebaseUser: User | null;
@@ -25,7 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userData = AUTHORIZED_USERS[user.uid];
+        const userData = await fetchFirmUser(user.uid, user.email || undefined);
         if (userData) {
           setFirebaseUser(user);
           setFirmUser(userData);
@@ -58,3 +58,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   return useContext(AuthContext);
 }
+

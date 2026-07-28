@@ -62,8 +62,30 @@ const OFFICE_CONFIG: Record<string, {
     matters: [
       { title: "Add your first active matter", client: "Add client name", status: "Pending", urgency: "Medium", description: "Click Edit to update this matter with real case details." }
     ]
+  },
+  counsel: {
+    accent: "yellow-500",
+    accentHex: "#EAB308",
+    greeting: "Counsel's Chambers",
+    quote: "\"Sound legal counsel is the cornerstone of justice and institutional integrity.\"",
+    stats: [
+      { label: "Active Matters", value: "—", icon: <Briefcase className="w-5 h-5 text-yellow-500" /> },
+      { label: "Advisory Briefs", value: "—", icon: <FileText className="w-5 h-5 text-yellow-500" /> },
+      { label: "Consultations", value: "—", icon: <Clock className="w-5 h-5 text-yellow-500" /> },
+      { label: "Opinions Rendered", value: "—", icon: <Scale className="w-5 h-5 text-yellow-500" /> }
+    ],
+    quickLinks: [
+      { label: "Counsel Docket", icon: <Scale className="w-4 h-4" /> },
+      { label: "Legal Opinions", icon: <FileText className="w-4 h-4" /> },
+      { label: "Precedent Research", icon: <BookOpen className="w-4 h-4" /> },
+      { label: "Client Advisory", icon: <Users className="w-4 h-4" /> }
+    ],
+    matters: [
+      { title: "Add your first active matter", client: "Add client name", status: "Pending", urgency: "Medium", description: "Click Edit to update this matter with real case details." }
+    ]
   }
 };
+
 
 function CalendarModal({ onClose }: { onClose: () => void }) {
   const today = new Date();
@@ -278,7 +300,30 @@ export default function OfficePage() {
   }
   if (!firmUser || !profile) return null;
 
-  const config = OFFICE_CONFIG[officeId] || OFFICE_CONFIG['prince'];
+  const defaultOffice = {
+    accent: "yellow-500",
+    accentHex: "#EAB308",
+    greeting: `${(officeId || 'counsel').charAt(0).toUpperCase() + (officeId || 'counsel').slice(1)}'s Chambers`,
+    quote: "\"Sound legal counsel and diligent practice are the bedrock of institutional justice.\"",
+    stats: [
+      { label: "Active Matters", value: "—", icon: <Briefcase className="w-5 h-5 text-yellow-500" /> },
+      { label: "Pending Tasks", value: "—", icon: <Clock className="w-5 h-5 text-yellow-500" /> },
+      { label: "Deadlines", value: "—", icon: <AlertCircle className="w-5 h-5 text-red-400" /> },
+      { label: "Files", value: "—", icon: <FileText className="w-5 h-5 text-yellow-500" /> }
+    ],
+    quickLinks: [
+      { label: "Office Overview", icon: <BarChart2 className="w-4 h-4" /> },
+      { label: "My Tasks", icon: <CheckCircle className="w-4 h-4" /> },
+      { label: "Document Library", icon: <FileText className="w-4 h-4" /> },
+      { label: "Legal Research", icon: <BookOpen className="w-4 h-4" /> }
+    ],
+    matters: [
+      { title: "Add your first active matter", client: "Add client name", status: "Pending", urgency: "Medium", description: "Click Edit to update this matter with real case details." }
+    ]
+  };
+
+  const config = OFFICE_CONFIG[officeId] || defaultOffice;
+
   const accentHex = config.accentHex;
 
   const handleSearch = () => {
@@ -354,8 +399,8 @@ export default function OfficePage() {
           </div>
 
           {/* Profile Info Banner (editable) */}
-          <div className="bg-white border border-gray-200 p-5 mb-8 shadow-sm flex items-center gap-4">
-            <div className="shrink-0">
+          <div className="bg-white border border-gray-200 p-5 mb-8 shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="relative group shrink-0">
               <img
                 src={profile.image}
                 alt={firmUser.name}
@@ -363,11 +408,39 @@ export default function OfficePage() {
                 className="w-16 h-20 object-cover border-2"
                 style={{ borderColor: accentHex }}
               />
+              <label
+                className="absolute inset-0 bg-black/70 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-center text-[10px] font-bold p-1"
+                title="Click to upload profile photo"
+              >
+                <Upload className="w-4 h-4 mb-0.5 text-yellow-500" />
+                <span>Upload</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size > 5 * 1024 * 1024) {
+                        alert("Image size should be under 5MB");
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        if (typeof reader.result === "string") {
+                          updateProfile('image', reader.result);
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </label>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <Pencil className="w-3 h-3 text-yellow-500" />
-                <span className="text-[10px] text-yellow-600 font-bold uppercase tracking-wider">Your Office Profile — click to edit</span>
+                <span className="text-[10px] text-yellow-600 font-bold uppercase tracking-wider">Your Office Profile — click any item or hover photo to update</span>
               </div>
               <p className="font-extrabold text-black text-sm uppercase tracking-wide">{firmUser.name}</p>
               <div className="text-xs text-gray-500 mt-1 flex flex-wrap gap-3">

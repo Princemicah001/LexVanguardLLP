@@ -3,23 +3,25 @@ import { Link } from "wouter";
 import { ChevronLeft, ChevronRight, ChevronDown, Scale, Users, Globe } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import EventsSection from "@/components/EventsSection";
+import { loadProfile } from "@/lib/profile-store";
 
 const SLIDES = [
   {
-    image: "assets/WhatsApp%20Image%202026-03-15%20at%202.49.52%20PM.jpeg",
-    fallback: "https://placehold.co/1920x1080/0a0a0a/EAB308?text=LexVanguard",
+    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1920&q=80",
+    fallback: "https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?auto=format&fit=crop&w=1920&q=80",
     lines: ["MERGING A", "MODERN MINDSET", "WITH THE PRACTICES WE", "VALUE"],
     gold: [true, true, false, false]
   },
   {
-    image: "assets/conference.jpeg",
-    fallback: "https://placehold.co/1920x1080/0a0a0a/EAB308?text=LexVanguard",
+    image: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1920&q=80",
+    fallback: "https://images.unsplash.com/photo-1575320181282-9afab399332c?auto=format&fit=crop&w=1920&q=80",
     lines: ["PIONEERING", "LEGAL RESEARCH", "AND ELITE APPELLATE", "ADVOCACY"],
     gold: [true, true, false, false]
   },
   {
-    image: "assets/conference2.jpeg",
-    fallback: "https://placehold.co/1920x1080/0a0a0a/EAB308?text=LexVanguard",
+    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80",
+    fallback: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80",
     lines: ["ENTERPRISE-GRADE", "LEGAL COUNSEL", "FOR TOMORROW'S", "CHALLENGES"],
     gold: [true, true, false, false]
   }
@@ -202,12 +204,15 @@ export default function HomePage() {
           </div>
           <div className="md:w-1/3">
             <div className="grid grid-cols-2 gap-4">
-              <img src="assets/prince.png" onError={(e)=>{(e.target as HTMLImageElement).src='https://placehold.co/400x400/0a0a0a/EAB308?text=Prince+Micah'}} alt="Prince Micah" className="w-full h-40 object-cover border-2 border-yellow-500" />
-              <img src="assets/kmusya.jpeg" onError={(e)=>{(e.target as HTMLImageElement).src='https://placehold.co/400x400/0a0a0a/EAB308?text=Kelvin+Musya'}} alt="Kelvin Musya" className="w-full h-40 object-cover border-2 border-yellow-500" />
+              <img src={loadProfile("Prince Micah").image} alt="Prince Micah" className="w-full h-40 object-cover border-2 border-yellow-500" />
+              <img src={loadProfile("Linet Njeri").image} alt="Linet Njeri" className="w-full h-40 object-cover border-2 border-yellow-500" />
             </div>
           </div>
         </div>
       </div>
+
+      {/* Events Section */}
+      <EventsSection />
 
       {/* Vision Banner */}
       <div className="bg-black border-t-4 border-yellow-500 py-16 px-6 text-center">

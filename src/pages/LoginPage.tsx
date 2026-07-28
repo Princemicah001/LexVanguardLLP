@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { AUTHORIZED_USERS } from "@/lib/users";
+import { fetchFirmUser } from "@/lib/users";
 import { signOut } from "firebase/auth";
 import Header from "@/components/Header";
 
@@ -24,7 +24,7 @@ export default function LoginPage() {
       setLoading(true);
 
       const credential = await signInWithEmailAndPassword(auth, email, password);
-      const userData = AUTHORIZED_USERS[credential.user.uid];
+      const userData = await fetchFirmUser(credential.user.uid, email);
 
       if (userData) {
         setEmail("");
@@ -51,6 +51,7 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">

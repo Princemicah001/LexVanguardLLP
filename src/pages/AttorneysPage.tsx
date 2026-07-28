@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { ATTORNEY_NAMES, ATTORNEY_UID_MAP } from "@/lib/users";
+import { subscribeFirestoreMembers, DEFAULT_ATTORNEY_LIST, getOfficeBadge, type FirestoreMember } from "@/lib/users";
 import { loadProfile, saveProfile, type AttorneyProfile } from "@/lib/profile-store";
 import { makeAvatarSvg } from "@/lib/avatar";
 import Header from "@/components/Header";
@@ -73,20 +73,42 @@ function EditableText({
 }
 
 function ProfileModal({
-  name,
+  member,
   canEdit,
   onClose
 }: {
-  name: string;
+  member: FirestoreMember;
   canEdit: boolean;
   onClose: () => void;
 }) {
-  const [profile, setProfile] = useState<AttorneyProfile>(() => loadProfile(name));
+  const [profile, setProfile] = useState<AttorneyProfile>(() => loadProfile(member.name, member));
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setProfile(loadProfile(member.name, member));
+  }, [member]);
 
   const update = (field: keyof AttorneyProfile, value: string) => {
     const updated = { ...profile, [field]: value };
     setProfile(updated);
     saveProfile(updated);
+  };
+
+  const handleImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size should be under 5MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          update("image", reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -112,18 +134,64 @@ function ProfileModal({
         <div className="p-6 space-y-6">
           {canEdit && (
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 text-xs text-yellow-800 font-semibold">
-              <Pencil className="inline w-3 h-3 mr-1" /> Click any field below to edit your profile. Changes save automatically.
+              <Pencil className="inline w-3 h-3 mr-1" /> Click any text below to edit, or hover over your photo to upload a new profile picture. Changes save automatically.
             </div>
           )}
 
           <div className="flex gap-6 items-start">
-            <img
-              src={profile.image}
-              alt={profile.name}
-              onError={(e) => { (e.target as HTMLImageElement).src = makeAvatarSvg(profile.name); }}
-              className="w-32 h-40 object-cover border-2 border-gray-200 shrink-0"
-            />
+            <div className="relative group shrink-0">
+              <img
+                src={profile.image}
+                alt={profile.name}
+                onError={(e) => { (e.target as HTMLImageElement).src = makeAvatarSvg(profile.name); }}
+                className="w-32 h-40 object-cover border-2 border-gray-200 shrink-0"
+              />
+              {canEdit && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute inset-0 bg-black/70 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity p-2 text-center text-xs font-bold"
+                  >
+                    <Pencil className="w-5 h-5 mb-1 text-yellow-500" />
+                    <span>Upload Photo</span>
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageFile}
+                  />
+                </>
+              )}
+            </div>
             <div className="flex-1">
+              {canEdit && (
+                <div className="mb-3">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-black text-xs font-bold uppercase tracking-wider transition-colors mb-2"
+                  >
+                    <Pencil className="w-3 h-3" /> Choose Photo File
+                  </button>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] text-gray-400 font-semibold uppercase">Or Photo URL:</span>
+                    <input
+                      type="text"
+                      placeholder="https://..."
+                      value={profile.image.startsWith("data:") ? "[Uploaded Image File]" : profile.image}
+                      onChange={e => {
+                        if (e.target.value && !e.target.value.startsWith("[")) {
+                          update("image", e.target.value);
+                        }
+                      }}
+                      className="border border-gray-300 text-xs px-2 py-1 flex-1 text-gray-800 focus:border-yellow-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
               <p className="text-yellow-600 font-bold text-xs uppercase tracking-widest mb-1">Practice Areas</p>
               <p className="text-sm text-gray-700 font-semibold mb-4">
                 {canEdit ? (
@@ -189,8 +257,20 @@ function ProfileModal({
   );
 }
 
-function AttorneyCard({ name, canEdit, onViewProfile }: { name: string; canEdit: boolean; onViewProfile: () => void }) {
-  const [profile, setProfile] = useState<AttorneyProfile>(() => loadProfile(name));
+function AttorneyCard({
+  member,
+  canEdit,
+  onViewProfile
+}: {
+  member: FirestoreMember;
+  canEdit: boolean;
+  onViewProfile: () => void;
+}) {
+  const [profile, setProfile] = useState<AttorneyProfile>(() => loadProfile(member.name, member));
+
+  useEffect(() => {
+    setProfile(loadProfile(member.name, member));
+  }, [member]);
 
   const update = (field: keyof AttorneyProfile, value: string) => {
     const updated = { ...profile, [field]: value };
@@ -198,19 +278,30 @@ function AttorneyCard({ name, canEdit, onViewProfile }: { name: string; canEdit:
     saveProfile(updated);
   };
 
+  const badgeText = getOfficeBadge(member);
+
   return (
-    <div className="group cursor-pointer">
+    <div 
+      tabIndex={0}
+      className="group cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-500/50 p-1 rounded transition-all"
+    >
       <div
-        className="relative overflow-hidden mb-4 border-2 border-gray-100 group-hover:border-yellow-500 transition-colors duration-300"
+        className="relative overflow-hidden mb-4 border-2 border-gray-100 group-hover:border-yellow-500 group-focus:border-yellow-500 transition-colors duration-300"
         onClick={onViewProfile}
       >
         <img
           src={profile.image}
           alt={profile.name}
-          onError={(e) => { (e.target as HTMLImageElement).src = makeAvatarSvg(name); }}
-          className="w-full h-[380px] object-cover grayscale group-hover:grayscale-0 transition-all duration-500 transform group-hover:scale-105"
+          onError={(e) => { (e.target as HTMLImageElement).src = makeAvatarSvg(member.name); }}
+          className="w-full h-[380px] object-cover grayscale-0 brightness-100 md:grayscale md:brightness-95 md:group-hover:grayscale-0 md:group-hover:brightness-100 group-focus:grayscale-0 group-focus:brightness-105 group-active:grayscale-0 group-active:brightness-105 transition-all duration-500 transform group-hover:scale-105 group-focus:scale-105"
         />
-        <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300" />
+        <div className="absolute inset-0 bg-transparent md:bg-black/10 md:group-hover:bg-transparent group-focus:bg-transparent transition-colors duration-300" />
+        
+        {/* Office Rank Hierarchy Badge */}
+        <div className="absolute bottom-3 left-3 bg-black/85 backdrop-blur-sm text-yellow-500 text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 border-l-2 border-yellow-500 shadow-md">
+          {badgeText}
+        </div>
+
         {canEdit && (
           <div className="absolute top-3 right-3 bg-yellow-500 text-black text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 flex items-center gap-1 shadow-md">
             <Pencil className="w-3 h-3" /> Your Profile
@@ -218,7 +309,7 @@ function AttorneyCard({ name, canEdit, onViewProfile }: { name: string; canEdit:
         )}
       </div>
 
-      <h3 className="text-xl font-extrabold text-black group-hover:text-yellow-500 transition-colors uppercase tracking-wide">
+      <h3 className="text-xl font-extrabold text-black group-hover:text-yellow-500 group-focus:text-yellow-500 transition-colors uppercase tracking-wide">
         {profile.name}
       </h3>
 
@@ -252,7 +343,7 @@ function AttorneyCard({ name, canEdit, onViewProfile }: { name: string; canEdit:
 
       <button
         onClick={onViewProfile}
-        className="mt-2 text-xs font-bold uppercase tracking-widest text-black border-b-2 border-black pb-1 group-hover:text-yellow-500 group-hover:border-yellow-500 transition-all bg-transparent cursor-pointer">
+        className="mt-2 text-xs font-bold uppercase tracking-widest text-black border-b-2 border-black pb-1 group-hover:text-yellow-500 group-hover:border-yellow-500 group-focus:text-yellow-500 group-focus:border-yellow-500 transition-all bg-transparent cursor-pointer">
         View Profile »
       </button>
     </div>
@@ -261,17 +352,28 @@ function AttorneyCard({ name, canEdit, onViewProfile }: { name: string; canEdit:
 
 export default function AttorneysPage() {
   const { firmUser } = useAuth();
-  const [activeProfile, setActiveProfile] = useState<string | null>(null);
+  const [members, setMembers] = useState<FirestoreMember[]>(DEFAULT_ATTORNEY_LIST);
+  const [activeProfile, setActiveProfile] = useState<FirestoreMember | null>(null);
   const [showAll, setShowAll] = useState(false);
 
-  const visibleNames = showAll ? ATTORNEY_NAMES : ATTORNEY_NAMES.slice(0, 6);
+  useEffect(() => {
+    const unsubscribe = subscribeFirestoreMembers((updated) => {
+      setMembers(updated);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const visibleMembers = showAll ? members : members.slice(0, 6);
 
   return (
     <div className="w-full bg-white">
       {activeProfile && (
         <ProfileModal
-          name={activeProfile}
-          canEdit={!!firmUser && ATTORNEY_UID_MAP[activeProfile] === firmUser.id}
+          member={activeProfile}
+          canEdit={
+            !!firmUser &&
+            (firmUser.id === activeProfile.uid || firmUser.name.toLowerCase() === activeProfile.name.toLowerCase())
+          }
           onClose={() => setActiveProfile(null)}
         />
       )}
@@ -301,21 +403,24 @@ export default function AttorneysPage() {
 
       <div className="max-w-[1300px] mx-auto px-6 pb-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {visibleNames.map(name => (
+          {visibleMembers.map((m, idx) => (
             <AttorneyCard
-              key={name}
-              name={name}
-              canEdit={!!firmUser && ATTORNEY_UID_MAP[name] === firmUser.id}
-              onViewProfile={() => setActiveProfile(name)}
+              key={`${m.uid || 'member'}-${m.name}-${idx}`}
+              member={m}
+              canEdit={
+                !!firmUser &&
+                (firmUser.id === m.uid || firmUser.name.toLowerCase() === m.name.toLowerCase())
+              }
+              onViewProfile={() => setActiveProfile(m)}
             />
           ))}
         </div>
-        {ATTORNEY_NAMES.length > 6 && (
+        {members.length > 6 && (
           <div className="text-center mt-12">
             <button
               onClick={() => setShowAll(!showAll)}
               className="border-2 border-black text-black hover:bg-black hover:text-white transition-colors px-8 py-3 font-bold uppercase tracking-widest text-sm flex items-center gap-2 mx-auto">
-              {showAll ? 'Show Less' : 'Show All Members'}
+              {showAll ? 'Show Less' : `Show All ${members.length} Members`}
               <ChevronDown className={`w-4 h-4 transition-transform ${showAll ? 'rotate-180' : ''}`} />
             </button>
           </div>

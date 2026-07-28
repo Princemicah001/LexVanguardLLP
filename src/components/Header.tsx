@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth-context";
 import { Phone, Search, Menu, X } from "lucide-react";
+import RotatingPhoneDisplay from "@/components/RotatingPhoneDisplay";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -11,9 +12,9 @@ export default function Header() {
   const navLinks = [
     { label: "Our Firm", href: "/" },
     { label: "Attorneys", href: "/attorneys" },
+    { label: "Events & Symposia", href: "/events" },
     { label: "Practice Areas", href: "/services" },
     { label: "History", href: "/history" },
-    { label: "News and Events", href: "/news" },
     { label: "Careers", href: "/careers" },
     { label: "Contact", href: "/contact" },
   ];
@@ -37,7 +38,7 @@ export default function Header() {
           <div className="flex items-center mb-5">
             <Phone className="text-white mr-3 w-4 h-4 fill-current" />
             <div className="h-5 w-px bg-white/50 mr-3" />
-            <span className="text-yellow-500 font-bold text-lg md:text-xl tracking-wider mr-6">+254116171396</span>
+            <RotatingPhoneDisplay className="text-yellow-500 font-bold text-lg md:text-xl tracking-wider mr-6" />
             <button className="border-2 border-white p-1 hover:bg-white hover:text-black transition-colors group">
               <Search className="w-4 h-4 group-hover:text-black" strokeWidth={3} />
             </button>

@@ -5,6 +5,7 @@ import AttorneysPage from "@/pages/AttorneysPage";
 import LoginPage from "@/pages/LoginPage";
 import OfficePage from "@/pages/OfficePage";
 import HistoryPage from "@/pages/HistoryPage";
+import EventsPage from "@/pages/EventsPage";
 import UnderConstruction from "@/pages/UnderConstruction";
 import NotFound from "@/pages/not-found";
 
@@ -41,8 +42,9 @@ function Router() {
       <Route path="/login" component={LoginPage} />
       <Route path="/office/:officeId" component={ProtectedOfficeRoute} />
       <Route path="/history" component={HistoryPage} />
+      <Route path="/events" component={EventsPage} />
+      <Route path="/news" component={EventsPage} />
       <Route path="/services"><UnderConstruction title="Practice Areas" /></Route>
-      <Route path="/news"><UnderConstruction title="News & Events" /></Route>
       <Route path="/careers"><UnderConstruction title="Careers" /></Route>
       <Route path="/contact"><UnderConstruction title="Contact" /></Route>
       <Route component={NotFound} />
