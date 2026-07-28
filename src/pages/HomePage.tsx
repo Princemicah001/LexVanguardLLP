@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EventsSection from "@/components/EventsSection";
 import { loadProfile, handleProfileImageError } from "@/lib/profile-store";
+import { subscribeFirestoreMembers } from "@/lib/users";
 import { makeAvatarSvg } from "@/lib/avatar";
 
 const SLIDES = [
@@ -73,8 +74,16 @@ export default function HomePage() {
         linet: loadProfile("Linet Njeri")
       });
     };
+
+    const unsubscribe = subscribeFirestoreMembers(() => {
+      handleUpdate();
+    });
+
     window.addEventListener("lexvanguard_profile_updated", handleUpdate);
-    return () => window.removeEventListener("lexvanguard_profile_updated", handleUpdate);
+    return () => {
+      unsubscribe();
+      window.removeEventListener("lexvanguard_profile_updated", handleUpdate);
+    };
   }, []);
 
   const prev = () => setSlide(s => s === 0 ? SLIDES.length - 1 : s - 1);

@@ -1,5 +1,6 @@
 import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
+import { syncProfileFromFirestore } from "./profile-store";
 
 export const ROLES = {
   CLIENT: { level: 0, name: 'Client' },
@@ -207,6 +208,19 @@ export function subscribeFirestoreMembers(callback: (members: FirestoreMember[])
 
         if (name && uid) {
           const key = getCanonicalKey(name, email, uid);
+
+          // Dynamically sync profile info into profile-store
+          syncProfileFromFirestore({
+            name,
+            title: data.title || data.roleName,
+            practice: data.practice,
+            bio: data.bio,
+            phone: data.phone,
+            email: data.email,
+            education: data.education,
+            achievements: data.achievements,
+            image: data.image
+          });
 
           if (!seenKeys.has(key)) {
             seenKeys.add(key);

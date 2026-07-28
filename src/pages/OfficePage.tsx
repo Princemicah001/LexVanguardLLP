@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { useAuth } from "@/lib/auth-context";
-import { TASKS } from "@/lib/users";
+import { TASKS, subscribeFirestoreMembers } from "@/lib/users";
 import { loadProfile, saveProfile, handleProfileImageError } from "@/lib/profile-store";
 import { uploadToImgBB } from "@/lib/imgbb";
 import {
@@ -298,8 +298,17 @@ export default function OfficePage() {
       }
     };
 
+    const unsubscribeMembers = subscribeFirestoreMembers(() => {
+      if (firmUser) {
+        setProfile(loadProfile(firmUser.name));
+      }
+    });
+
     window.addEventListener("lexvanguard_profile_updated", handleProfileUpdate);
-    return () => window.removeEventListener("lexvanguard_profile_updated", handleProfileUpdate);
+    return () => {
+      unsubscribeMembers();
+      window.removeEventListener("lexvanguard_profile_updated", handleProfileUpdate);
+    };
   }, [firmUser, loading, officeId, setLocation]);
 
   if (loading) {

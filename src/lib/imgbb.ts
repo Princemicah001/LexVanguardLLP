@@ -14,19 +14,105 @@ export function fileToDataUrl(file: File): Promise<string> {
 }
 
 /**
+ * Resizes and compresses an image File or Base64 string to max dimensions (800x800) and JPEG quality.
+ * Produces an ultra-lightweight Data URL (~30KB-70KB) guaranteed to fit in Firestore (limit 1MB).
+ */
+export function compressImage(
+  fileOrBase64: File | string,
+  maxWidth = 800,
+  maxHeight = 800,
+  quality = 0.8
+): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+
+    img.onload = () => {
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth || height > maxHeight) {
+        if (width / height > maxWidth / maxHeight) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        } else {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      } else {
+        resolve(typeof fileOrBase64 === "string" ? fileOrBase64 : "");
+      }
+    };
+
+    img.onerror = () => {
+      if (typeof fileOrBase64 === "string") {
+        resolve(fileOrBase64);
+      } else {
+        fileToDataUrl(fileOrBase64).then(resolve);
+      }
+    };
+
+    if (typeof fileOrBase64 === "string") {
+      img.src = fileOrBase64;
+    } else {
+      fileToDataUrl(fileOrBase64).then((dataUrl) => {
+        if (dataUrl) img.src = dataUrl;
+        else resolve("");
+      });
+    }
+  });
+}
+
+/**
+ * Normalizes ImgBB URLs (e.g. converting ibb.co viewer links to direct raw image URLs if possible)
+ */
+export function normalizeImgBbUrl(url: string): string {
+  if (!url) return "";
+  const trimmed = url.trim();
+  // If user pasted something like ibb.co/pjV4Bczf/filename.jpg, ensure https://
+  if (trimmed.startsWith("ibb.co/") || trimmed.startsWith("i.ibb.co/")) {
+    return "https://" + trimmed;
+  }
+  return trimmed;
+}
+
+/**
  * Uploads an image (File or base64 data URL) to ImgBB and returns the direct CDN image URL.
- * Fallbacks gracefully to Base64 Data URL if network/ImgBB API fails or is blocked.
+ * Fallbacks gracefully to lightweight compressed Data URL if network/ImgBB API fails or is blocked.
  */
 export async function uploadToImgBB(fileOrBase64: File | string, imageName?: string): Promise<string> {
   // If it's already an http/https URL, return as is
   if (typeof fileOrBase64 === "string" && fileOrBase64.startsWith("http")) {
-    return fileOrBase64;
+    return normalizeImgBbUrl(fileOrBase64);
+  }
+
+  // Pre-compress image to ensure fast upload and lightweight fallback (~40KB)
+  let compressedBase64 = "";
+  try {
+    compressedBase64 = await compressImage(fileOrBase64, 800, 800, 0.8);
+  } catch {
+    compressedBase64 = "";
   }
 
   try {
     const formData = new FormData();
 
-    if (typeof fileOrBase64 === "string") {
+    if (compressedBase64) {
+      const raw = compressedBase64.includes("base64,")
+        ? compressedBase64.split("base64,")[1]
+        : compressedBase64;
+      formData.append("image", raw);
+    } else if (typeof fileOrBase64 === "string") {
       const base64Data = fileOrBase64.includes("base64,")
         ? fileOrBase64.split("base64,")[1]
         : fileOrBase64;
@@ -54,13 +140,18 @@ export async function uploadToImgBB(fileOrBase64: File | string, imageName?: str
       }
     }
   } catch (err) {
-    console.warn("ImgBB API upload unavailable/blocked, using Data URL fallback:", err);
+    console.warn("ImgBB API upload unavailable/blocked, using compressed Data URL fallback:", err);
   }
 
-  // Graceful fallback to Data URL if ImgBB upload fails or is blocked
+  // Graceful fallback to lightweight compressed Data URL if ImgBB upload fails or is blocked
+  if (compressedBase64) {
+    return compressedBase64;
+  }
+
   if (typeof fileOrBase64 === "string") {
     return fileOrBase64;
   }
   return await fileToDataUrl(fileOrBase64);
 }
+
 

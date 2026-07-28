@@ -2,6 +2,7 @@ import { makeAvatarSvg } from "./avatar";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import { getCanonicalKey } from "./users";
+import { compressImage } from "./imgbb";
 
 export interface AttorneyProfile {
   name: string;
@@ -99,25 +100,49 @@ export function loadProfile(name: string, fallbackData?: Partial<AttorneyProfile
   } catch {}
 
   // Determine best image URL:
-  // 1. If stored profile in localStorage has a custom image, prioritize it
-  // 2. Otherwise if fallbackData (e.g. from Firestore) has an image, use it
+  // 1. If fallbackData (e.g. live Firestore update) has a valid image, prioritize live cloud data
+  // 2. Otherwise if stored profile in localStorage has a custom image, use it
   // 3. Otherwise use default profile image or avatar SVG
-  let finalImage = storedObj.image || fallbackData?.image || base.image;
+  let finalImage = fallbackData?.image || storedObj.image || base.image;
   if (!finalImage) {
     finalImage = makeAvatarSvg(name);
   }
 
   return {
     name,
-    title: storedObj.title || fallbackData?.title || base.title || "Counsel",
-    practice: storedObj.practice || fallbackData?.practice || base.practice || "Legal Counsel & Advisory",
-    bio: storedObj.bio || fallbackData?.bio || base.bio || "Click to add professional biography.",
-    phone: storedObj.phone || fallbackData?.phone || base.phone || "+254 116 171 396",
-    email: storedObj.email || fallbackData?.email || base.email || `${name.toLowerCase().replace(/\s+/g, '.')}@lexvanguard.edu`,
-    education: storedObj.education || fallbackData?.education || base.education || "LLB, Mount Kenya University",
-    achievements: storedObj.achievements || fallbackData?.achievements || base.achievements || "Legal Advocate",
+    title: fallbackData?.title || storedObj.title || base.title || "Counsel",
+    practice: fallbackData?.practice || storedObj.practice || base.practice || "Legal Counsel & Advisory",
+    bio: fallbackData?.bio || storedObj.bio || base.bio || "Click to add professional biography.",
+    phone: fallbackData?.phone || storedObj.phone || base.phone || "+254 116 171 396",
+    email: fallbackData?.email || storedObj.email || base.email || `${name.toLowerCase().replace(/\s+/g, '.')}@lexvanguard.edu`,
+    education: fallbackData?.education || storedObj.education || base.education || "LLB, Mount Kenya University",
+    achievements: fallbackData?.achievements || storedObj.achievements || base.achievements || "Legal Advocate",
     image: finalImage
   };
+}
+
+export function syncProfileFromFirestore(data: Partial<AttorneyProfile> & { name: string }): AttorneyProfile {
+  const existing = loadProfile(data.name, data);
+  const updated: AttorneyProfile = {
+    ...existing,
+    ...data,
+    image: data.image || existing.image || makeAvatarSvg(data.name)
+  };
+
+  DEFAULT_PROFILES[data.name] = updated;
+
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const all = stored ? (JSON.parse(stored) as Record<string, AttorneyProfile>) : {};
+    all[data.name] = updated;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  } catch {}
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lexvanguard_profile_updated", { detail: updated }));
+  }
+
+  return updated;
 }
 
 export function saveProfile(profile: AttorneyProfile): void {
@@ -138,27 +163,39 @@ export function saveProfile(profile: AttorneyProfile): void {
     }
   } catch {}
 
-  // Sync to Firestore if available
-  try {
-    const canonicalKey = getCanonicalKey(profile.name, profile.email);
-    if (db && canonicalKey) {
-      const userRef = doc(db, "users", canonicalKey);
-      setDoc(userRef, {
-        name: profile.name,
-        title: profile.title,
-        practice: profile.practice,
-        bio: profile.bio,
-        phone: profile.phone,
-        email: profile.email,
-        education: profile.education,
-        achievements: profile.achievements,
-        image: profile.image,
-        updatedAt: new Date().toISOString()
-      }, { merge: true }).catch((e) => console.warn("Firestore sync error:", e));
+  // Sync to Firestore asynchronously with light payload guarantee
+  (async () => {
+    try {
+      const canonicalKey = getCanonicalKey(profile.name, profile.email);
+      if (db && canonicalKey) {
+        let finalImage = profile.image;
+
+        // If image is a large Base64 string (>100KB), compress it first so Firestore setDoc never fails
+        if (finalImage && finalImage.startsWith("data:image/") && finalImage.length > 100000) {
+          try {
+            finalImage = await compressImage(finalImage, 800, 800, 0.75);
+          } catch {}
+        }
+
+        const userRef = doc(db, "users", canonicalKey);
+        await setDoc(userRef, {
+          uid: canonicalKey,
+          name: profile.name,
+          title: profile.title,
+          practice: profile.practice,
+          bio: profile.bio,
+          phone: profile.phone,
+          email: profile.email,
+          education: profile.education,
+          achievements: profile.achievements,
+          image: finalImage,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      }
+    } catch (err) {
+      console.warn("Could not sync profile to Firestore:", err);
     }
-  } catch (err) {
-    console.warn("Could not sync profile to Firestore:", err);
-  }
+  })();
 }
 
 export function getAllProfiles(): Record<string, AttorneyProfile> {
@@ -177,25 +214,23 @@ export function getAllProfiles(): Record<string, AttorneyProfile> {
 
 export function handleProfileImageError(e: React.SyntheticEvent<HTMLImageElement, Event>, name?: string): void {
   const imgEl = e.target as HTMLImageElement;
-  const fallback = name ? makeAvatarSvg(name) : "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80";
+  const currentSrc = imgEl.src;
+
+  // Try fixing ibb.co viewer links to direct i.ibb.co URL
+  if (currentSrc && currentSrc.includes("ibb.co/") && !currentSrc.includes("i.ibb.co/")) {
+    const parts = currentSrc.split("ibb.co/")[1]?.split("/");
+    const code = parts?.[0];
+    if (code) {
+      imgEl.src = `https://i.ibb.co/${code}/image.jpg`;
+      return;
+    }
+  }
+
+  const fallback = "https://37assets.37signals.com/svn/765-default-avatar.png";
   
   if (imgEl.src !== fallback) {
     imgEl.src = fallback;
   }
-
-  // Clear broken 404 URL from stored profile in localStorage if applicable
-  if (name) {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const all = JSON.parse(stored) as Record<string, AttorneyProfile>;
-        if (all[name]) {
-          const defaultImage = DEFAULT_PROFILES[name]?.image || fallback;
-          all[name].image = defaultImage;
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-        }
-      }
-    } catch {}
-  }
 }
+
 

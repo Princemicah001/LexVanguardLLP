@@ -11,6 +11,7 @@ import { subscribeEvents, generateIcsCalendar, type FirmEvent } from "@/lib/even
 import { RsvpModal } from "@/components/RsvpModal";
 import { HostEventModal } from "@/components/HostEventModal";
 import { loadProfile, handleProfileImageError } from "@/lib/profile-store";
+import { subscribeFirestoreMembers } from "@/lib/users";
 import { makeAvatarSvg } from "@/lib/avatar";
 
 export default function EventsPage() {
@@ -24,11 +25,23 @@ export default function EventsPage() {
   const [detailedEvent, setDetailedEvent] = useState<FirmEvent | null>(null);
   const [showHostModal, setShowHostModal] = useState(false);
 
+  const [profileTick, setProfileTick] = useState(0);
+
   useEffect(() => {
     const unsubscribe = subscribeEvents((list) => {
       setEvents(list);
     });
-    return () => unsubscribe();
+    const unsubscribeMembers = subscribeFirestoreMembers(() => {
+      setProfileTick(t => t + 1);
+    });
+    const handleUpdate = () => setProfileTick(t => t + 1);
+    window.addEventListener("lexvanguard_profile_updated", handleUpdate);
+
+    return () => {
+      unsubscribe();
+      unsubscribeMembers();
+      window.removeEventListener("lexvanguard_profile_updated", handleUpdate);
+    };
   }, []);
 
   // Filter events
