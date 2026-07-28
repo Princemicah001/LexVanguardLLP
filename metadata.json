@@ -1,0 +1,6 @@
+{
+  "name": "LexVanguard",
+  "description": "LexVanguard legal practice platform featuring attorney profiles, firm office management, history, and practice areas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
