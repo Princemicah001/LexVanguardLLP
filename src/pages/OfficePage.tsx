@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { useAuth } from "@/lib/auth-context";
 import { TASKS } from "@/lib/users";
-import { loadProfile, saveProfile } from "@/lib/profile-store";
+import { loadProfile, saveProfile, handleProfileImageError } from "@/lib/profile-store";
+import { uploadToImgBB } from "@/lib/imgbb";
 import {
   Calendar, FileText, Scale, BookOpen, Search,
   Bell, CheckCircle, Briefcase, LogOut, ChevronRight,
   Users, BarChart2, AlertCircle, Star, Clock,
-  X, Upload, Plus, Pencil, ChevronDown
+  X, Upload, Plus, Pencil, ChevronDown, Loader2
 } from "lucide-react";
 import Header from "@/components/Header";
 import { makeAvatarSvg } from "@/lib/avatar";
@@ -289,6 +290,16 @@ export default function OfficePage() {
     if (!loading && !firmUser) { setLocation("/login"); return; }
     if (!loading && firmUser && firmUser.officeId !== officeId) { setLocation(`/office/${firmUser.officeId}`); }
     if (firmUser) setProfile(loadProfile(firmUser.name));
+
+    const handleProfileUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && firmUser && customEvent.detail.name === firmUser.name) {
+        setProfile(customEvent.detail);
+      }
+    };
+
+    window.addEventListener("lexvanguard_profile_updated", handleProfileUpdate);
+    return () => window.removeEventListener("lexvanguard_profile_updated", handleProfileUpdate);
   }, [firmUser, loading, officeId, setLocation]);
 
   if (loading) {
@@ -334,6 +345,8 @@ export default function OfficePage() {
       setSearching(false);
     }, 1200);
   };
+
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const updateProfile = (field: keyof typeof profile, value: string) => {
     const updated = { ...profile!, [field]: value };
@@ -404,34 +417,46 @@ export default function OfficePage() {
               <img
                 src={profile.image}
                 alt={firmUser.name}
-                onError={(e) => { (e.target as HTMLImageElement).src = makeAvatarSvg(firmUser.name); }}
+                onError={(e) => handleProfileImageError(e, firmUser.name)}
                 className="w-16 h-20 object-cover border-2"
                 style={{ borderColor: accentHex }}
               />
               <label
                 className="absolute inset-0 bg-black/70 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-center text-[10px] font-bold p-1"
-                title="Click to upload profile photo"
+                title="Click to upload profile photo to ImgBB"
               >
-                <Upload className="w-4 h-4 mb-0.5 text-yellow-500" />
-                <span>Upload</span>
+                {uploadingImage ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mb-0.5 text-yellow-500 animate-spin" />
+                    <span>Uploading...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mb-0.5 text-yellow-500" />
+                    <span>Upload</span>
+                  </>
+                )}
                 <input
                   type="file"
                   accept="image/*"
+                  disabled={uploadingImage}
                   className="hidden"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
-                    if (file) {
-                      if (file.size > 5 * 1024 * 1024) {
-                        alert("Image size should be under 5MB");
-                        return;
-                      }
-                      const reader = new FileReader();
-                      reader.onload = () => {
-                        if (typeof reader.result === "string") {
-                          updateProfile('image', reader.result);
-                        }
-                      };
-                      reader.readAsDataURL(file);
+                    if (!file) return;
+                    if (file.size > 10 * 1024 * 1024) {
+                      alert("Image size should be under 10MB");
+                      return;
+                    }
+                    try {
+                      setUploadingImage(true);
+                      const imageUrl = await uploadToImgBB(file, firmUser.name);
+                      updateProfile('image', imageUrl);
+                    } catch (err: any) {
+                      console.error("ImgBB upload error:", err);
+                      alert("Failed to upload image: " + (err?.message || "Please try again"));
+                    } finally {
+                      setUploadingImage(false);
                     }
                   }}
                 />

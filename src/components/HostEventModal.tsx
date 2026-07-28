@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { X, Calendar, Clock, MapPin, Plus, Sparkles, Image as ImageIcon } from "lucide-react";
+import { X, Calendar, Clock, MapPin, Plus, Sparkles, Image as ImageIcon, Upload, Loader2, ExternalLink } from "lucide-react";
 import { createFirmEvent, type FirmEvent, type EventSpeaker } from "@/lib/events-store";
 import { useAuth } from "@/lib/auth-context";
+import { uploadToImgBB, IMGBB_ALBUM_URL } from "@/lib/imgbb";
 
 interface HostEventModalProps {
   onClose: () => void;
@@ -21,6 +22,7 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
   const [cpdCredits, setCpdCredits] = useState("3.0 LSK CPD Units");
   const [capacity, setCapacity] = useState(200);
   const [image, setImage] = useState("https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80");
+  const [uploadingImg, setUploadingImg] = useState(false);
   const [description, setDescription] = useState("");
   const [fullDetails, setFullDetails] = useState("");
 
@@ -183,13 +185,49 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300 mb-1">
-              Banner Image URL
-            </label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">
+                Banner Image URL
+              </label>
+              <div className="flex items-center gap-3">
+                <a
+                  href={IMGBB_ALBUM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-bold text-gray-400 hover:text-yellow-500 flex items-center gap-1 transition-colors"
+                >
+                  <ExternalLink className="w-3 h-3" /> ImgBB Album
+                </a>
+                <label className="cursor-pointer text-xs font-bold text-yellow-500 hover:underline flex items-center gap-1">
+                  {uploadingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                  <span>{uploadingImg ? "Uploading..." : "Upload File"}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploadingImg}
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        setUploadingImg(true);
+                        const url = await uploadToImgBB(file, title || "event_banner");
+                        setImage(url);
+                      } catch (err: any) {
+                        alert("Upload failed: " + (err?.message || err));
+                      } finally {
+                        setUploadingImg(false);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
             <input
               type="url"
               value={image}
               onChange={(e) => setImage(e.target.value)}
+              placeholder="https://i.ibb.co/..."
               className="w-full bg-neutral-900 border border-white/20 focus:border-yellow-500 text-white px-4 py-2.5 text-sm focus:outline-none"
             />
           </div>

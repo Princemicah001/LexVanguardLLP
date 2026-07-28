@@ -10,7 +10,8 @@ import { useAuth } from "@/lib/auth-context";
 import { subscribeEvents, generateIcsCalendar, type FirmEvent } from "@/lib/events-store";
 import { RsvpModal } from "@/components/RsvpModal";
 import { HostEventModal } from "@/components/HostEventModal";
-import { loadProfile } from "@/lib/profile-store";
+import { loadProfile, handleProfileImageError } from "@/lib/profile-store";
+import { makeAvatarSvg } from "@/lib/avatar";
 
 export default function EventsPage() {
   const { firmUser } = useAuth();
@@ -152,6 +153,7 @@ export default function EventsPage() {
                           <img
                             src={profile.image}
                             alt={s.name}
+                            onError={(e) => handleProfileImageError(e, s.name)}
                             className="w-12 h-12 object-cover border border-yellow-500/50 grayscale"
                           />
                           <div>
@@ -315,6 +317,9 @@ export default function EventsPage() {
                 <img
                   src={featured.image}
                   alt={featured.title}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80";
+                  }}
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                 />
                 <div className="absolute top-4 left-4 bg-yellow-500 text-black text-[11px] font-black uppercase tracking-widest px-3 py-1.5 shadow-lg flex items-center gap-1.5">
@@ -408,6 +413,9 @@ export default function EventsPage() {
                     <img
                       src={evt.image}
                       alt={evt.title}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80";
+                      }}
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 transform group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent" />

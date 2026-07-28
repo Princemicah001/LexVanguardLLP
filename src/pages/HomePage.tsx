@@ -4,7 +4,8 @@ import { ChevronLeft, ChevronRight, ChevronDown, Scale, Users, Globe } from "luc
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EventsSection from "@/components/EventsSection";
-import { loadProfile } from "@/lib/profile-store";
+import { loadProfile, handleProfileImageError } from "@/lib/profile-store";
+import { makeAvatarSvg } from "@/lib/avatar";
 
 const SLIDES = [
   {
@@ -51,10 +52,29 @@ const PHILOSOPHY = [
 export default function HomePage() {
   const [slide, setSlide] = useState(0);
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [profiles, setProfiles] = useState(() => ({
+    prince: loadProfile("Prince Micah"),
+    kelvin: loadProfile("Kelvin Musya"),
+    donel: loadProfile("Donel Aganyo"),
+    linet: loadProfile("Linet Njeri")
+  }));
 
   useEffect(() => {
     const timer = setInterval(() => setSlide(s => (s + 1) % SLIDES.length), 6000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setProfiles({
+        prince: loadProfile("Prince Micah"),
+        kelvin: loadProfile("Kelvin Musya"),
+        donel: loadProfile("Donel Aganyo"),
+        linet: loadProfile("Linet Njeri")
+      });
+    };
+    window.addEventListener("lexvanguard_profile_updated", handleUpdate);
+    return () => window.removeEventListener("lexvanguard_profile_updated", handleUpdate);
   }, []);
 
   const prev = () => setSlide(s => s === 0 ? SLIDES.length - 1 : s - 1);
@@ -203,9 +223,21 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="md:w-1/3">
-            <div className="grid grid-cols-2 gap-4">
-              <img src={loadProfile("Prince Micah").image} alt="Prince Micah" className="w-full h-40 object-cover border-2 border-yellow-500" />
-              <img src={loadProfile("Linet Njeri").image} alt="Linet Njeri" className="w-full h-40 object-cover border-2 border-yellow-500" />
+            <div className="grid grid-cols-2 gap-3">
+              {[profiles.prince, profiles.kelvin, profiles.donel, profiles.linet].map((p, i) => (
+                <div key={i} className="relative group overflow-hidden border-2 border-yellow-500 shadow-md">
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    onError={(e) => handleProfileImageError(e, p.name)}
+                    className="w-full h-36 object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 text-white">
+                    <p className="font-extrabold text-xs uppercase tracking-wider text-yellow-500 truncate">{p.name}</p>
+                    <p className="text-[10px] text-gray-300 truncate">{p.title}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

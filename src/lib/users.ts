@@ -94,7 +94,7 @@ export async function fetchFirmUser(uid: string, email?: string): Promise<FirmUs
       };
     }
   } catch (err) {
-    console.error("Error fetching user profile from Firestore:", err);
+    console.warn("User profile fetch from Firestore unavailable, using fallback profile:", err);
   }
 
   // Fallback for any authenticated Firebase user so login never fails for valid members
@@ -238,11 +238,11 @@ export function subscribeFirestoreMembers(callback: (members: FirestoreMember[])
 
       callback(sortMembersByHierarchy(list));
     }, (error) => {
-      console.error("Firestore users subscription error:", error);
+      console.warn("Firestore users subscription unavailable, using local default attorney list:", error?.message || error);
       callback(sortMembersByHierarchy(DEFAULT_ATTORNEY_LIST));
     });
   } catch (e) {
-    console.error("Error setting up Firestore listener:", e);
+    console.warn("Error setting up Firestore listener, using local default attorney list:", e);
     callback(sortMembersByHierarchy(DEFAULT_ATTORNEY_LIST));
     return () => {};
   }

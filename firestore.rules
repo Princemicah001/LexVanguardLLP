@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users and Attorney Profiles
+    match /users/{userId} {
+      // Public read access for attorney directory and user profiles
+      allow read: if true;
+      
+      // Allow profile updates and registration
+      allow write: if request.auth != null || true;
+    }
+
+    // Firm Events (Lectures, Gala, Seminars)
+    match /events/{eventId} {
+      // Public read access for all upcoming & past events
+      allow read: if true;
+
+      // Create, update, or delete events
+      allow create, update, delete: if true;
+    }
+
+    // RSVPs for Events
+    match /rsvps/{rsvpId} {
+      // Public read and submission for event RSVPs
+      allow read, create, update: if true;
+    }
+
+    // Default fallback rule for authenticated users
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

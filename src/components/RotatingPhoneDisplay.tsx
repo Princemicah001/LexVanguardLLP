@@ -6,7 +6,7 @@ interface RotatingPhoneDisplayProps {
 }
 
 export default function RotatingPhoneDisplay({ className = "", showIcon = false }: RotatingPhoneDisplayProps) {
-  const { phone, telHref, index } = useRotatingPhone(10000);
+  const { phone, telHref, index } = useRotatingPhone(20000);
 
   return (
     <a

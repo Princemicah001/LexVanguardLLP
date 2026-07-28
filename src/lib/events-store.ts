@@ -246,11 +246,11 @@ export function subscribeEvents(callback: (events: FirmEvent[]) => void) {
       saveLocalEvents(list);
       callback(list);
     }, (error) => {
-      console.error("Firestore events subscription error, using local state:", error);
+      console.warn("Firestore events subscription unavailable, using local state fallback:", error?.message || error);
       callback(getLocalEvents());
     });
   } catch (e) {
-    console.error("Error subscribing to events:", e);
+    console.warn("Error subscribing to events, using local state fallback:", e);
     callback(getLocalEvents());
     return () => {};
   }

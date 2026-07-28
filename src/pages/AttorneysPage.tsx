@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { subscribeFirestoreMembers, DEFAULT_ATTORNEY_LIST, getOfficeBadge, type FirestoreMember } from "@/lib/users";
-import { loadProfile, saveProfile, type AttorneyProfile } from "@/lib/profile-store";
+import { loadProfile, saveProfile, handleProfileImageError, type AttorneyProfile } from "@/lib/profile-store";
+import { uploadToImgBB, IMGBB_ALBUM_URL } from "@/lib/imgbb";
 import { makeAvatarSvg } from "@/lib/avatar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Pencil, X, Check, Phone, Mail, BookOpen, Star, ChevronDown } from "lucide-react";
+import { Pencil, X, Check, Phone, Mail, BookOpen, Star, ChevronDown, Loader2, ExternalLink } from "lucide-react";
 
 function EditableText({
   value,
@@ -86,7 +87,19 @@ function ProfileModal({
 
   useEffect(() => {
     setProfile(loadProfile(member.name, member));
+
+    const handleProfileUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<AttorneyProfile>;
+      if (customEvent.detail && customEvent.detail.name === member.name) {
+        setProfile(customEvent.detail);
+      }
+    };
+
+    window.addEventListener("lexvanguard_profile_updated", handleProfileUpdate);
+    return () => window.removeEventListener("lexvanguard_profile_updated", handleProfileUpdate);
   }, [member]);
+
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const update = (field: keyof AttorneyProfile, value: string) => {
     const updated = { ...profile, [field]: value };
@@ -94,20 +107,23 @@ function ProfileModal({
     saveProfile(updated);
   };
 
-  const handleImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("Image size should be under 5MB");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          update("image", reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Image size should be under 10MB");
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      const imageUrl = await uploadToImgBB(file, profile.name);
+      update("image", imageUrl);
+    } catch (err: any) {
+      console.error("ImgBB upload error:", err);
+      alert("Image upload failed: " + (err?.message || "Please try again."));
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -143,18 +159,28 @@ function ProfileModal({
               <img
                 src={profile.image}
                 alt={profile.name}
-                onError={(e) => { (e.target as HTMLImageElement).src = makeAvatarSvg(profile.name); }}
+                onError={(e) => handleProfileImageError(e, profile.name)}
                 className="w-32 h-40 object-cover border-2 border-gray-200 shrink-0"
               />
               {canEdit && (
                 <>
                   <button
                     type="button"
+                    disabled={uploadingImage}
                     onClick={() => fileInputRef.current?.click()}
                     className="absolute inset-0 bg-black/70 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity p-2 text-center text-xs font-bold"
                   >
-                    <Pencil className="w-5 h-5 mb-1 text-yellow-500" />
-                    <span>Upload Photo</span>
+                    {uploadingImage ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mb-1 text-yellow-500 animate-spin" />
+                        <span>Uploading to ImgBB...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Pencil className="w-5 h-5 mb-1 text-yellow-500" />
+                        <span>Upload Photo</span>
+                      </>
+                    )}
                   </button>
                   <input
                     ref={fileInputRef}
@@ -171,23 +197,31 @@ function ProfileModal({
                 <div className="mb-3">
                   <button
                     type="button"
+                    disabled={uploadingImage}
                     onClick={() => fileInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-black text-xs font-bold uppercase tracking-wider transition-colors mb-2"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 text-black text-xs font-bold uppercase tracking-wider transition-colors mb-2 cursor-pointer"
                   >
-                    <Pencil className="w-3 h-3" /> Choose Photo File
+                    {uploadingImage ? <Loader2 className="w-3 h-3 animate-spin" /> : <Pencil className="w-3 h-3" />}
+                    {uploadingImage ? "Uploading to ImgBB..." : "Upload Photo (ImgBB Album)"}
                   </button>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] text-gray-400 font-semibold uppercase">Or Photo URL:</span>
+                  <div className="flex flex-col gap-1 mt-1">
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="text-gray-500 font-bold uppercase">Image URL:</span>
+                      <a
+                        href={IMGBB_ALBUM_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-yellow-600 hover:text-black font-extrabold flex items-center gap-1 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3" /> View Album (xKqQD6)
+                      </a>
+                    </div>
                     <input
                       type="text"
-                      placeholder="https://..."
-                      value={profile.image.startsWith("data:") ? "[Uploaded Image File]" : profile.image}
-                      onChange={e => {
-                        if (e.target.value && !e.target.value.startsWith("[")) {
-                          update("image", e.target.value);
-                        }
-                      }}
-                      className="border border-gray-300 text-xs px-2 py-1 flex-1 text-gray-800 focus:border-yellow-500 focus:outline-none"
+                      placeholder="https://i.ibb.co/..."
+                      value={profile.image}
+                      onChange={e => update("image", e.target.value)}
+                      className="border border-gray-300 text-xs px-2 py-1 w-full text-gray-800 focus:border-yellow-500 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -270,6 +304,16 @@ function AttorneyCard({
 
   useEffect(() => {
     setProfile(loadProfile(member.name, member));
+
+    const handleProfileUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<AttorneyProfile>;
+      if (customEvent.detail && customEvent.detail.name === member.name) {
+        setProfile(customEvent.detail);
+      }
+    };
+
+    window.addEventListener("lexvanguard_profile_updated", handleProfileUpdate);
+    return () => window.removeEventListener("lexvanguard_profile_updated", handleProfileUpdate);
   }, [member]);
 
   const update = (field: keyof AttorneyProfile, value: string) => {
@@ -292,7 +336,7 @@ function AttorneyCard({
         <img
           src={profile.image}
           alt={profile.name}
-          onError={(e) => { (e.target as HTMLImageElement).src = makeAvatarSvg(member.name); }}
+          onError={(e) => handleProfileImageError(e, member.name)}
           className="w-full h-[380px] object-cover grayscale-0 brightness-100 md:grayscale md:brightness-95 md:group-hover:grayscale-0 md:group-hover:brightness-100 group-focus:grayscale-0 group-focus:brightness-105 group-active:grayscale-0 group-active:brightness-105 transition-all duration-500 transform group-hover:scale-105 group-focus:scale-105"
         />
         <div className="absolute inset-0 bg-transparent md:bg-black/10 md:group-hover:bg-transparent group-focus:bg-transparent transition-colors duration-300" />
