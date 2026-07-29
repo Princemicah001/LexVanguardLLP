@@ -51,140 +51,156 @@ export interface EventRSVP {
 
 export const INITIAL_EVENTS: FirmEvent[] = [
   {
-    id: "evt-summit-2026",
-    title: "East Africa Constitutional & Digital Sovereignty Summit 2026",
-    category: "Keynote & Summit",
-    date: "2026-08-20",
-    displayDate: "AUGUST 20, 2026",
-    time: "09:00 AM - 05:00 PM EAT",
-    location: "Lex Vanguard Chambers Auditorium & Virtual Stream",
+    id: "evt-vintage-bazaar",
+    title: "Summer Vintage & Legal Artisans Assembly",
+    category: "Symposium",
+    date: "2026-08-23",
+    displayDate: "Sun, Aug 23, 10:00 AM",
+    time: "10:00 AM - 04:00 PM EAT",
+    location: "Lex Vanguard Plaza • Nairobi, Kenya",
     isVirtual: false,
     featured: true,
-    image: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
-    description: "A flagship legal assembly reuniting senior advocates, jurists, and policy experts to examine constitutional frameworks, sovereign data privacy laws, and emerging AI jurisprudence.",
-    fullDetails: "The 2026 East Africa Constitutional & Digital Sovereignty Summit stands as Lex Vanguard's premier annual legal gathering. Convening leading constitutional scholars, appellate advocates, tech founders, and judicial figures, this full-day summit explores the intersection of state authority, digital privacy rights, cross-border data sovereignty, and AI regulation across East Africa. Attendees will participate in interactive panel debates, policy briefing roundtables, and keynote addresses.",
-    cpdCredits: "4.0 LSK CPD Units",
-    capacity: 350,
-    registeredCount: 218,
+    image: "https://images.unsplash.com/photo-1531058240690-006c446962d8?auto=format&fit=crop&w=1200&q=80",
+    description: "An exclusive legal, artistic, and cultural gathering celebrating heritage law, intellectual property rights for creators, and networking.",
+    fullDetails: "Join us for our signature summer bazaar and legal advisory symposium. Bringing together advocates, creators, and entrepreneurs for curated legal discussions and community networking.",
+    cpdCredits: "2.0 CPD Units",
+    capacity: 300,
+    registeredCount: 184,
     status: "Upcoming",
     speakers: [
-      { name: "Prince Micah", role: "Founding & Managing Partner", uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1" },
-      { name: "Kelvin Musya", role: "Founding & Senior Partner", uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2" },
-      { name: "Donel Aganyo", role: "Founding Partner • IP Practice Lead", uid: "donel_aganyo_uid" }
+      { name: "Prince Micah", role: "Founding Partner & Co-Owner", uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1" },
+      { name: "Donel Aganyo", role: "Founding Partner & Co-Owner", uid: "donel_aganyo_uid" }
     ],
     agenda: [
-      { time: "09:00 AM", topic: "Opening Keynote: Digital Sovereignty & Constitutional Supremacy", presenter: "Prince Micah" },
-      { time: "11:00 AM", topic: "Panel: AI Jurisprudence & Appellate Precedents in East Africa", presenter: "Kelvin Musya & Guests" },
-      { time: "02:00 PM", topic: "Workshop: Data Privacy Enforcement & Corporate Compliance", presenter: "Donel Aganyo" },
-      { time: "04:15 PM", topic: "Valedictory Declaration & Networking Reception", presenter: "Lex Vanguard Directorate" }
+      { time: "10:00 AM", topic: "Opening Address: IP Rights in Creative Industries", presenter: "Donel Aganyo" },
+      { time: "01:30 PM", topic: "Pro Bono Advisory Sessions for Artisans", presenter: "Prince Micah" }
     ]
   },
   {
-    id: "evt-cle-appellate-2026",
-    title: "Mastering Cross-Examination & Appellate Briefing Masterclass",
+    id: "evt-brunch-shop",
+    title: "Summer Legal Brunch & Tech Ventures Forum",
+    category: "Keynote & Summit",
+    date: "2026-08-30",
+    displayDate: "Sun, Aug 30, 10:00 AM",
+    time: "10:00 AM - 03:00 PM EAT",
+    location: "Grand Ballroom • Nairobi, Kenya",
+    isVirtual: false,
+    featured: false,
+    image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
+    description: "Executive brunch convening tech founders, angel investors, and venture counsel to discuss fundraising, venture agreements, and corporate governance.",
+    fullDetails: "A premier networking brunch and roundtable discussing venture capital term sheets, startup law, and cross-border corporate structure.",
+    cpdCredits: "3.0 CPD Units",
+    capacity: 250,
+    registeredCount: 210,
+    status: "Upcoming",
+    speakers: [
+      { name: "Kelvin Musya", role: "Founding Partner & Co-Owner", uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2" },
+      { name: "Linet Njeri", role: "Finance Manager", uid: "linet_njeri_uid" }
+    ],
+    agenda: [
+      { time: "10:00 AM", topic: "Navigating VC Term Sheets & Shareholder Rights", presenter: "Kelvin Musya" },
+      { time: "12:00 PM", topic: "Financial Advisory for Growth Companies", presenter: "Linet Njeri" }
+    ]
+  },
+  {
+    id: "evt-summer-bazaar",
+    title: "Lex Vanguard Appellate Litigation Colloquium",
     category: "CLE & Workshop",
-    date: "2026-09-05",
-    displayDate: "SEPTEMBER 05, 2026",
-    time: "02:00 PM - 05:30 PM EAT",
-    location: "Supreme Court Moot Hall & Online Broadcast",
+    date: "2026-09-06",
+    displayDate: "Sun, Sep 06, 10:00 AM",
+    time: "10:00 AM - 05:00 PM EAT",
+    location: "Lex Vanguard Chambers • Nairobi, Kenya",
     isVirtual: true,
     featured: false,
     image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
-    description: "An intensive advocacy training session focused on constructing airtight appellate briefs, mastering expert witness cross-examination, and managing high-stakes court appearances.",
-    fullDetails: "Designed for practicing counsel, senior law scholars, and pupil advocates, this CLE masterclass delivers hands-on litigation methodology. Participants will analyze real-world appellate record books, dissect persuasive oral advocacy strategies, and undergo simulated bench questioning under the guidance of senior advocates.",
-    cpdCredits: "3.0 LSK CPD Units",
-    capacity: 180,
-    registeredCount: 142,
+    description: "High-level judicial review and appellate strategy seminar for litigation counsel, judges, and legal researchers.",
+    fullDetails: "In-depth masterclass examining constitutional jurisprudence, Supreme Court precedents, and persuasive oral advocacy.",
+    cpdCredits: "4.0 CPD Units",
+    capacity: 400,
+    registeredCount: 312,
     status: "Upcoming",
     speakers: [
-      { name: "Kelvin Musya", role: "Founding & Senior Partner", uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2" },
-      { name: "Linet Njeri", role: "Finance Manager & Dispute Counsel", uid: "linet_njeri_uid" }
+      { name: "Kelvin Musya", role: "Founding Partner & Co-Owner", uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2" }
     ],
     agenda: [
-      { time: "02:00 PM", topic: "Anatomy of an Unassailable Appellate Brief", presenter: "Kelvin Musya" },
-      { time: "03:30 PM", topic: "Tactical Cross-Examination in Complex Commercial Matters", presenter: "Linet Njeri" },
-      { time: "04:45 PM", topic: "Live Moot Critique & Q&A Session", presenter: "Panellists" }
+      { time: "10:00 AM", topic: "Anatomy of Supreme Court Petitions", presenter: "Kelvin Musya" }
     ]
   },
   {
-    id: "evt-ip-symposium-2026",
-    title: "Intellectual Property & Frontier Technology Litigation Symposium",
-    category: "Symposium",
-    date: "2026-09-22",
-    displayDate: "SEPTEMBER 22, 2026",
-    time: "10:00 AM - 04:00 PM EAT",
-    location: "Lex Vanguard Innovation Hub & Virtual Lounge",
-    isVirtual: false,
-    featured: false,
-    image: "https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?auto=format&fit=crop&w=1200&q=80",
-    description: "In-depth analysis of patent protection, software trade secrets, open-source compliance, and regional trademark enforcement in fast-scaling tech ecosystems.",
-    fullDetails: "As technology ventures scale rapidly across Africa, protecting intellectual property requires forward-thinking legal architecture. This symposium addresses patent prosecution, trade secret preservation, digital copyright in creative industries, and licensing negotiations.",
-    cpdCredits: "3.5 LSK CPD Units",
-    capacity: 220,
-    registeredCount: 165,
-    status: "Upcoming",
-    speakers: [
-      { name: "Donel Aganyo", role: "Founding Partner • IP Practice Lead", uid: "donel_aganyo_uid" },
-      { name: "Sharon Mwariri", role: "Lead Legal Researcher", uid: "sharon_mwariri_uid" }
-    ],
-    agenda: [
-      { time: "10:00 AM", topic: "Patent Strategies for Software & Biotech Enterprises", presenter: "Donel Aganyo" },
-      { time: "11:45 AM", topic: "Legislative Research: Regional Copyright & Trademarks", presenter: "Sharon Mwariri" },
-      { time: "02:15 PM", topic: "Interactive IP Audit Clinic", presenter: "Lex Vanguard IP Division" }
-    ]
-  },
-  {
-    id: "evt-probono-2026",
-    title: "Access to Justice & Community Legal Aid Outreach",
+    id: "evt-market-day",
+    title: "Lex Vanguard Annual Pro Bono & Community Outreach Day",
     category: "Community & Pro Bono",
-    date: "2026-10-10",
-    displayDate: "OCTOBER 10, 2026",
-    time: "08:30 AM - 04:30 PM EAT",
-    location: "Central Community Hall & Mobile Advisory Clinic",
+    date: "2026-09-13",
+    displayDate: "Sun, Sep 13, 10:00 AM",
+    time: "10:00 AM - 04:00 PM EAT",
+    location: "City Community Grounds • Nairobi, Kenya",
     isVirtual: false,
     featured: false,
     image: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80",
-    description: "A firm-wide pro bono initiative offering complimentary legal advisory, civil rights assistance, contract reviews, and land dispute consultations for underserved individuals.",
-    fullDetails: "Rooted in Lex Vanguard's ethos that justice must be accessible to all, our annual Pro Bono Outreach connects senior advocates and student clinicians directly with community members needing legal assistance. Services include pro bono petition drafting, dispute mediation, and legal literacy workshops.",
-    cpdCredits: "Community Outreach Certificate",
+    description: "Complimentary community legal clinic providing guidance on land law, family trusts, employment disputes, and civil rights.",
+    fullDetails: "Our flagship pro bono outreach connecting experienced advocates directly with members of the community needing accessible legal help.",
+    cpdCredits: "Community Service",
     capacity: 500,
-    registeredCount: 389,
+    registeredCount: 420,
     status: "Upcoming",
     speakers: [
-      { name: "Kimathi Winner", role: "Associate & Pro Bono Lead", uid: "kimathi_winner_uid" },
-      { name: "Prince Micah", role: "Founding & Managing Partner", uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1" }
+      { name: "Prince Micah", role: "Founding Partner & Co-Owner", uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1" },
+      { name: "Kimathi Winner", role: "Associate", uid: "kimathi_winner_uid" }
     ],
     agenda: [
-      { time: "08:30 AM", topic: "Opening Briefing & Volunteer Allocation", presenter: "Kimathi Winner" },
-      { time: "09:30 AM", topic: "One-on-One Legal Consultations & Document Drafting", presenter: "Pro Bono Advisory Panel" },
-      { time: "02:00 PM", topic: "Know Your Rights: Community Legal Literacy Seminar", presenter: "Prince Micah" }
+      { time: "10:00 AM", topic: "Community Legal Literacy Seminar", presenter: "Prince Micah" }
+    ]
+  },
+  {
+    id: "evt-summit-2026",
+    title: "East Africa Constitutional & Digital Sovereignty Summit",
+    category: "Keynote & Summit",
+    date: "2026-09-20",
+    displayDate: "Sun, Sep 20, 09:00 AM",
+    time: "09:00 AM - 05:00 PM EAT",
+    location: "Auditorium & Virtual Stream",
+    isVirtual: false,
+    featured: false,
+    image: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
+    description: "A landmark legal assembly reuniting senior advocates, jurists, and policy experts to examine constitutional frameworks.",
+    fullDetails: "The East Africa Constitutional & Digital Sovereignty Summit convenes legal scholars, judges, and policy advisors.",
+    cpdCredits: "4.0 CPD Units",
+    capacity: 350,
+    registeredCount: 280,
+    status: "Upcoming",
+    speakers: [
+      { name: "Prince Micah", role: "Founding Partner & Co-Owner", uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1" },
+      { name: "Kelvin Musya", role: "Founding Partner & Co-Owner", uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2" },
+      { name: "Donel Aganyo", role: "Founding Partner & Co-Owner", uid: "donel_aganyo_uid" }
+    ],
+    agenda: [
+      { time: "09:00 AM", topic: "Digital Sovereignty Keynote", presenter: "Prince Micah" }
     ]
   },
   {
     id: "evt-past-gala-2026",
-    title: "Inaugural Lex Vanguard Moot Court & Legal Excellence Gala",
+    title: "Inaugural Lex Vanguard Moot Court & Legal Gala",
     category: "Symposium",
     date: "2026-05-18",
-    displayDate: "MAY 18, 2026",
+    displayDate: "Mon, May 18, 10:00 AM",
     time: "Full Day Assembly & Evening Gala",
     location: "Mount Kenya University Grand Auditorium",
     isVirtual: false,
     featured: false,
     image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
-    description: "The historic launching symposium and competitive advocacy tournament celebrating legal excellence, student scholarship, and judicial leadership.",
-    fullDetails: "The Inaugural Lex Vanguard Moot Court brought together over 40 law teams across East Africa. Keynote addresses were delivered by senior judicial officers, culminating in the formal inauguration of Lex Vanguard's foundational chambers.",
-    cpdCredits: "Event Completed",
+    description: "The historic launching symposium and competitive advocacy tournament celebrating legal excellence.",
+    fullDetails: "Inaugural Moot Court competition bringing together law schools across East Africa.",
+    cpdCredits: "Completed",
     capacity: 400,
     registeredCount: 400,
     status: "Past Event",
     recapUrl: "#",
     speakers: [
-      { name: "Prince Micah", role: "Founding & Managing Partner", uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1" },
-      { name: "Kelvin Musya", role: "Founding & Senior Partner", uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2" }
+      { name: "Prince Micah", role: "Founding Partner & Co-Owner", uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1" },
+      { name: "Kelvin Musya", role: "Founding Partner & Co-Owner", uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2" }
     ],
     agenda: [
-      { time: "10:00 AM", topic: "Moot Court Championship Finals", presenter: "Finalist Advocacy Teams" },
-      { time: "06:00 PM", topic: "Inaugural Firm Gala & Keynote Address", presenter: "Founding Partners" }
+      { time: "10:00 AM", topic: "Moot Court Finals", presenter: "Advocacy Teams" }
     ]
   }
 ];

@@ -1,6 +1,6 @@
 import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
-import { syncProfileFromFirestore } from "./profile-store";
+import { syncProfileFromFirestore, syncLocalProfilesToFirestore } from "./profile-store";
 
 export const ROLES = {
   CLIENT: { level: 0, name: 'Client' },
@@ -33,7 +33,7 @@ export const AUTHORIZED_USERS: Record<string, FirmUser> = {
     email: 'prince@lexvanguard.edu',
     role: ROLES.MANAGING_PARTNER,
     officeId: 'prince',
-    title: 'Founding & Managing Partner',
+    title: 'Founding Partner & Co-Owner (Managing Partner)',
     practice: 'Corporate & Tech Law, Mergers & Acquisitions'
   },
   'SSbNEJrVyhM6b8LbWYsyunPGk6l2': {
@@ -42,8 +42,17 @@ export const AUTHORIZED_USERS: Record<string, FirmUser> = {
     email: 'kelvin@lexvanguard.edu',
     role: ROLES.MANAGING_PARTNER,
     officeId: 'kelvin',
-    title: 'Founding & Senior Partner',
+    title: 'Founding Partner & Co-Owner (Senior Partner)',
     practice: 'Appellate Advocacy, Supreme Court Litigation'
+  },
+  'donel_aganyo_uid': {
+    id: 'donel_aganyo_uid',
+    name: 'Donel Aganyo',
+    email: 'donel@lexvanguard.edu',
+    role: ROLES.MANAGING_PARTNER,
+    officeId: 'donel',
+    title: 'Founding Partner & Co-Owner (Head of IP)',
+    practice: 'Intellectual Property, Patent Litigation'
   }
 };
 
@@ -125,6 +134,7 @@ export interface FirestoreMember {
   email?: string;
   officeId?: string;
   image?: string;
+  profilePhoto?: string;
   bio?: string;
   phone?: string;
   education?: string;
@@ -132,9 +142,9 @@ export interface FirestoreMember {
 }
 
 export const DEFAULT_ATTORNEY_LIST: FirestoreMember[] = [
-  { uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1", name: "Prince Micah", title: "Founding & Managing Partner", practice: "Corporate & Tech Law, Mergers & Acquisitions", email: "prince@lexvanguard.edu" },
-  { uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2", name: "Kelvin Musya", title: "Founding & Senior Partner", practice: "Appellate Advocacy, Supreme Court Litigation", email: "kelvin@lexvanguard.edu" },
-  { uid: "donel_aganyo_uid", name: "Donel Aganyo", title: "Founding Partner", practice: "Intellectual Property, Patent Litigation", email: "donel@lexvanguard.edu" },
+  { uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1", name: "Prince Micah", title: "Founding Partner & Co-Owner", practice: "Corporate & Tech Law, Mergers & Acquisitions", email: "prince@lexvanguard.edu" },
+  { uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2", name: "Kelvin Musya", title: "Founding Partner & Co-Owner", practice: "Appellate Advocacy, Supreme Court Litigation", email: "kelvin@lexvanguard.edu" },
+  { uid: "donel_aganyo_uid", name: "Donel Aganyo", title: "Founding Partner & Co-Owner", practice: "Intellectual Property, Patent Litigation", email: "donel@lexvanguard.edu" },
   { uid: "linet_njeri_uid", name: "Linet Njeri", title: "Finance Manager", practice: "Commercial Litigation, Dispute Resolution", email: "linet@lexvanguard.edu" },
   { uid: "sharon_mwariri_uid", name: "Sharon Mwariri", title: "Lead Legal Researcher", practice: "Policy Analysis, Legislative Drafting", email: "sharon@lexvanguard.edu" },
   { uid: "kimathi_winner_uid", name: "Kimathi Winner", title: "Associate", practice: "Pro Bono Initiative, Civil Rights", email: "kimathi@lexvanguard.edu" }
@@ -145,9 +155,10 @@ export function getMemberRank(m: FirestoreMember): number {
   const office = (m.officeId || "").toLowerCase();
   const name = (m.name || "").toLowerCase();
 
-  if (name.includes("prince micah") || office === "prince" || title.includes("managing partner")) return 100;
-  if (name.includes("kelvin musya") || office === "kelvin" || title.includes("senior partner")) return 98;
-  if (name.includes("donel aganyo") || office === "donel" || (title.includes("founding") && title.includes("partner"))) return 95;
+  if (name.includes("prince micah") || office === "prince") return 100;
+  if (name.includes("kelvin musya") || office === "kelvin") return 98;
+  if (name.includes("donel aganyo") || office === "donel") return 96;
+  if (title.includes("founding") && title.includes("partner")) return 95;
   if (title.includes("partner")) return 80;
   if (title.includes("finance") || title.includes("commercial") || office === "linet") return 70;
   if (title.includes("research") || title.includes("scholar") || office === "sharon") return 60;
@@ -161,9 +172,9 @@ export function getOfficeBadge(m: FirestoreMember): string {
   const rank = getMemberRank(m);
   const name = (m.name || "").toLowerCase();
 
-  if (name.includes("prince micah") || rank === 100) return "Founding Partner • Managing Partner";
-  if (name.includes("kelvin musya") || rank === 98) return "Founding Partner • Senior Partner";
-  if (name.includes("donel aganyo") || rank === 95) return "Founding Partner • IP Practice Lead";
+  if (name.includes("prince micah") || rank === 100) return "Founding Partner & Co-Owner • Head of Firm";
+  if (name.includes("kelvin musya") || rank === 98) return "Founding Partner & Co-Owner • Head of Firm";
+  if (name.includes("donel aganyo") || rank === 96) return "Founding Partner & Co-Owner • Head of Firm";
   if (rank >= 80) return "Partnership Office";
   if (rank >= 70) return "Commercial & Finance Office";
   if (rank >= 60) return "Research & Policy Office";
@@ -194,54 +205,19 @@ export function getCanonicalKey(name: string, email?: string, uid?: string): str
 }
 
 export function subscribeFirestoreMembers(callback: (members: FirestoreMember[]) => void) {
+  // Trigger background auto-sync of any local profiles to Firestore
   try {
-    const colRef = collection(db, "users");
-    return onSnapshot(colRef, (snapshot) => {
-      const list: FirestoreMember[] = [];
-      const seenKeys = new Set<string>();
+    syncLocalProfilesToFirestore();
+  } catch {}
 
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        const name = data.name || data.displayName || "Firm Member";
-        const uid = data.uid || docSnap.id;
-        const email = data.email || "";
+  try {
+    const combinedMap = new Map<string, FirestoreMember>();
 
-        if (name && uid) {
-          const key = getCanonicalKey(name, email, uid);
+    const emitMerged = () => {
+      const list = Array.from(combinedMap.values());
+      const seenKeys = new Set(list.map(m => getCanonicalKey(m.name, m.email, m.uid)));
 
-          // Dynamically sync profile info into profile-store
-          syncProfileFromFirestore({
-            name,
-            title: data.title || data.roleName,
-            practice: data.practice,
-            bio: data.bio,
-            phone: data.phone,
-            email: data.email,
-            education: data.education,
-            achievements: data.achievements,
-            image: data.image
-          });
-
-          if (!seenKeys.has(key)) {
-            seenKeys.add(key);
-            list.push({
-              uid: uid.toString().trim(),
-              name,
-              title: data.title || data.roleName || "Counsel",
-              practice: data.practice || "Legal Counsel & Advisory",
-              email: data.email,
-              officeId: data.officeId,
-              image: data.image,
-              bio: data.bio,
-              phone: data.phone,
-              education: data.education,
-              achievements: data.achievements
-            });
-          }
-        }
-      });
-
-      // Ensure default attorneys are included if not yet present in Firestore
+      // Ensure default attorneys are included if not yet present
       DEFAULT_ATTORNEY_LIST.forEach((def) => {
         const key = getCanonicalKey(def.name, def.email, def.uid);
         if (!seenKeys.has(key)) {
@@ -251,10 +227,65 @@ export function subscribeFirestoreMembers(callback: (members: FirestoreMember[])
       });
 
       callback(sortMembersByHierarchy(list));
-    }, (error) => {
-      console.warn("Firestore users subscription unavailable, using local default attorney list:", error?.message || error);
-      callback(sortMembersByHierarchy(DEFAULT_ATTORNEY_LIST));
+    };
+
+    const processSnapshot = (snapshot: any) => {
+      snapshot.forEach((docSnap: any) => {
+        const data = docSnap.data();
+        const name = data.name || data.displayName || "Firm Member";
+        const uid = data.uid || docSnap.id;
+        const email = data.email || "";
+        const image = data.profilePhoto || data.image || data.photoURL || data.photoUrl || data.avatar || data.picture;
+
+        if (name && uid) {
+          const key = getCanonicalKey(name, email, uid);
+
+          // Sync profile info into profile-store
+          syncProfileFromFirestore({
+            name,
+            title: data.title || data.roleName,
+            practice: data.practice,
+            bio: data.bio,
+            phone: data.phone,
+            email: data.email,
+            education: data.education,
+            achievements: data.achievements,
+            image: image,
+            profilePhoto: image
+          });
+
+          const existing = combinedMap.get(key);
+          combinedMap.set(key, {
+            uid: uid.toString().trim(),
+            name,
+            title: data.title || data.roleName || existing?.title || "Counsel",
+            practice: data.practice || existing?.practice || "Legal Counsel & Advisory",
+            email: data.email || existing?.email,
+            officeId: data.officeId || existing?.officeId,
+            image: image || existing?.image,
+            profilePhoto: image || existing?.profilePhoto || existing?.image,
+            bio: data.bio || existing?.bio,
+            phone: data.phone || existing?.phone,
+            education: data.education || existing?.education,
+            achievements: data.achievements || existing?.achievements
+          });
+        }
+      });
+      emitMerged();
+    };
+
+    const unsubUsers = onSnapshot(collection(db, "users"), processSnapshot, (err) => {
+      console.warn("Firestore users listener warning:", err);
     });
+
+    const unsubUserProfiles = onSnapshot(collection(db, "userProfiles"), processSnapshot, (err) => {
+      console.warn("Firestore userProfiles listener warning:", err);
+    });
+
+    return () => {
+      unsubUsers();
+      unsubUserProfiles();
+    };
   } catch (e) {
     console.warn("Error setting up Firestore listener, using local default attorney list:", e);
     callback(sortMembersByHierarchy(DEFAULT_ATTORNEY_LIST));

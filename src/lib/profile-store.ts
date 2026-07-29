@@ -14,40 +14,41 @@ export interface AttorneyProfile {
   education: string;
   achievements: string;
   image: string;
+  profilePhoto?: string;
 }
 
 const DEFAULT_PROFILES: Record<string, AttorneyProfile> = {
   "Prince Micah": {
     name: "Prince Micah",
-    title: "Founding & Managing Partner",
+    title: "Founding Partner & Co-Owner | Managing Partner",
     practice: "Corporate & Tech Law, Mergers & Acquisitions",
-    bio: "Founding Partner leading LexVanguard's strategic corporate and technological law initiatives.",
+    bio: "Co-Owner & Founding Partner leading LexVanguard's strategic corporate, technological, and firm operations.",
     phone: "+254 116 171 396",
     email: "prince@lexvanguard.edu",
     education: "LLB, Mount Kenya University",
-    achievements: "Founding Partner, National Moot Court Finalist",
+    achievements: "Founding Partner & Co-Owner, Head of Firm",
     image: "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=800&q=80"
   },
   "Kelvin Musya": {
     name: "Kelvin Musya",
-    title: "Founding & Senior Partner",
+    title: "Founding Partner & Co-Owner | Senior Partner",
     practice: "Appellate Advocacy, Supreme Court Litigation",
-    bio: "Senior Appellate Counsel specialized in constitutional litigation and high-stakes dispute resolution.",
+    bio: "Co-Owner & Founding Partner directing Supreme Court litigation, constitutional law, and senior appellate strategy.",
     phone: "+254 708 948 809",
     email: "kelvin@lexvanguard.edu",
     education: "LLB, Mount Kenya University",
-    achievements: "Founding Partner, Senior Appellate Counsel",
+    achievements: "Founding Partner & Co-Owner, Head of Firm",
     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80"
   },
   "Donel Aganyo": {
     name: "Donel Aganyo",
-    title: "Founding Partner",
+    title: "Founding Partner & Co-Owner | Head of IP Practice",
     practice: "Intellectual Property, Patent Litigation",
-    bio: "Lead IP Advocate directing patent protection, trademark registration, and technology dispute resolution.",
+    bio: "Co-Owner & Founding Partner heading Intellectual Property protection, patent litigation, and technology disputes.",
     phone: "+254 707 865 597",
     email: "donel@lexvanguard.edu",
     education: "LLB, Mount Kenya University",
-    achievements: "Founding Partner, Lead IP Advocate",
+    achievements: "Founding Partner & Co-Owner, Head of Firm",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80"
   },
   "Linet Njeri": {
@@ -100,10 +101,10 @@ export function loadProfile(name: string, fallbackData?: Partial<AttorneyProfile
   } catch {}
 
   // Determine best image URL:
-  // 1. If fallbackData (e.g. live Firestore update) has a valid image, prioritize live cloud data
+  // 1. If fallbackData (e.g. live Firestore update) has a valid image/profilePhoto, prioritize live cloud data
   // 2. Otherwise if stored profile in localStorage has a custom image, use it
   // 3. Otherwise use default profile image or avatar SVG
-  let finalImage = fallbackData?.image || storedObj.image || base.image;
+  let finalImage = fallbackData?.profilePhoto || fallbackData?.image || (fallbackData as any)?.photoURL || storedObj.image || base.image;
   if (!finalImage) {
     finalImage = makeAvatarSvg(name);
   }
@@ -117,16 +118,19 @@ export function loadProfile(name: string, fallbackData?: Partial<AttorneyProfile
     email: fallbackData?.email || storedObj.email || base.email || `${name.toLowerCase().replace(/\s+/g, '.')}@lexvanguard.edu`,
     education: fallbackData?.education || storedObj.education || base.education || "LLB, Mount Kenya University",
     achievements: fallbackData?.achievements || storedObj.achievements || base.achievements || "Legal Advocate",
-    image: finalImage
+    image: finalImage,
+    profilePhoto: finalImage
   };
 }
 
-export function syncProfileFromFirestore(data: Partial<AttorneyProfile> & { name: string }): AttorneyProfile {
+export function syncProfileFromFirestore(data: Partial<AttorneyProfile> & { name: string, profilePhoto?: string }): AttorneyProfile {
   const existing = loadProfile(data.name, data);
+  const cloudImage = data.profilePhoto || data.image || (data as any)?.photoURL;
   const updated: AttorneyProfile = {
     ...existing,
     ...data,
-    image: data.image || existing.image || makeAvatarSvg(data.name)
+    image: cloudImage || existing.image || makeAvatarSvg(data.name),
+    profilePhoto: cloudImage || existing.image || makeAvatarSvg(data.name)
   };
 
   DEFAULT_PROFILES[data.name] = updated;
@@ -146,29 +150,35 @@ export function syncProfileFromFirestore(data: Partial<AttorneyProfile> & { name
 }
 
 export function saveProfile(profile: AttorneyProfile): void {
+  // Ensure profilePhoto is in sync with image
+  const profileToSave = {
+    ...profile,
+    profilePhoto: profile.profilePhoto || profile.image
+  };
+
   // Update memory cache
-  DEFAULT_PROFILES[profile.name] = { ...DEFAULT_PROFILES[profile.name], ...profile };
+  DEFAULT_PROFILES[profile.name] = { ...DEFAULT_PROFILES[profile.name], ...profileToSave };
 
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     const all = stored ? (JSON.parse(stored) as Record<string, AttorneyProfile>) : {};
-    all[profile.name] = profile;
+    all[profile.name] = profileToSave;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
   } catch {}
 
   // Broadcast custom event for immediate UI updates across components
   try {
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("lexvanguard_profile_updated", { detail: profile }));
+      window.dispatchEvent(new CustomEvent("lexvanguard_profile_updated", { detail: profileToSave }));
     }
   } catch {}
 
   // Sync to Firestore asynchronously with light payload guarantee
   (async () => {
     try {
-      const canonicalKey = getCanonicalKey(profile.name, profile.email);
+      const canonicalKey = getCanonicalKey(profileToSave.name, profileToSave.email);
       if (db && canonicalKey) {
-        let finalImage = profile.image;
+        let finalImage = profileToSave.image || profileToSave.profilePhoto;
 
         // If image is a large Base64 string (>100KB), compress it first so Firestore setDoc never fails
         if (finalImage && finalImage.startsWith("data:image/") && finalImage.length > 100000) {
@@ -177,25 +187,117 @@ export function saveProfile(profile: AttorneyProfile): void {
           } catch {}
         }
 
-        const userRef = doc(db, "users", canonicalKey);
-        await setDoc(userRef, {
+        const userProfilePayload = {
           uid: canonicalKey,
-          name: profile.name,
-          title: profile.title,
-          practice: profile.practice,
-          bio: profile.bio,
-          phone: profile.phone,
-          email: profile.email,
-          education: profile.education,
-          achievements: profile.achievements,
+          name: profileToSave.name,
+          displayName: profileToSave.name,
+          title: profileToSave.title,
+          practice: profileToSave.practice,
+          bio: profileToSave.bio,
+          phone: profileToSave.phone,
+          email: profileToSave.email,
+          education: profileToSave.education,
+          achievements: profileToSave.achievements,
+          profilePhoto: finalImage,
           image: finalImage,
+          photoURL: finalImage,
+          avatar: finalImage,
           updatedAt: new Date().toISOString()
-        }, { merge: true });
+        };
+
+        const usersPayload = {
+          uid: canonicalKey,
+          name: profileToSave.name,
+          displayName: profileToSave.name,
+          title: profileToSave.title,
+          practice: profileToSave.practice,
+          email: profileToSave.email,
+          updatedAt: new Date().toISOString()
+        };
+
+        // Write user profile data with photos to "userProfiles" collection
+        await setDoc(doc(db, "userProfiles", canonicalKey), userProfilePayload, { merge: true });
+        // Write office/identity info to "users" collection
+        await setDoc(doc(db, "users", canonicalKey), usersPayload, { merge: true });
+
+        if (profileToSave.email) {
+          const emailKey = profileToSave.email.toLowerCase().trim().replace(/[^a-z0-9]/g, "_");
+          await setDoc(doc(db, "userProfiles", emailKey), userProfilePayload, { merge: true });
+          await setDoc(doc(db, "users", emailKey), usersPayload, { merge: true });
+        }
       }
     } catch (err) {
       console.warn("Could not sync profile to Firestore:", err);
     }
   })();
+}
+
+export async function syncLocalProfilesToFirestore(): Promise<void> {
+  if (!db) return;
+  try {
+    const allProfiles = getAllProfiles();
+    for (const name of Object.keys(allProfiles)) {
+      const prof = allProfiles[name];
+      if (!prof) continue;
+
+      const canonicalKey = getCanonicalKey(prof.name, prof.email);
+      let finalImage = prof.image || prof.profilePhoto;
+
+      if (finalImage && finalImage.startsWith("data:image/") && finalImage.length > 100000) {
+        try {
+          finalImage = await compressImage(finalImage, 800, 800, 0.75);
+        } catch {}
+      }
+
+      const userProfilePayload = {
+        uid: canonicalKey,
+        name: prof.name,
+        displayName: prof.name,
+        title: prof.title,
+        practice: prof.practice,
+        bio: prof.bio,
+        phone: prof.phone,
+        email: prof.email,
+        education: prof.education,
+        achievements: prof.achievements,
+        profilePhoto: finalImage,
+        image: finalImage,
+        photoURL: finalImage,
+        avatar: finalImage,
+        updatedAt: new Date().toISOString()
+      };
+
+      const usersPayload = {
+        uid: canonicalKey,
+        name: prof.name,
+        displayName: prof.name,
+        title: prof.title,
+        practice: prof.practice,
+        email: prof.email,
+        updatedAt: new Date().toISOString()
+      };
+
+      if (canonicalKey) {
+        await setDoc(doc(db, "userProfiles", canonicalKey), userProfilePayload, { merge: true });
+        await setDoc(doc(db, "users", canonicalKey), usersPayload, { merge: true });
+      }
+
+      if (prof.email) {
+        const emailKey = prof.email.toLowerCase().trim().replace(/[^a-z0-9]/g, "_");
+        await setDoc(doc(db, "userProfiles", emailKey), userProfilePayload, { merge: true });
+        await setDoc(doc(db, "users", emailKey), usersPayload, { merge: true });
+      }
+    }
+  } catch (err) {
+    console.warn("Auto-sync local profiles to Firestore failed:", err);
+  }
+}
+
+// Auto-run local profiles sync to Firestore on load
+if (typeof window !== "undefined") {
+  setTimeout(() => {
+    syncLocalProfilesToFirestore();
+  }, 1000);
 }
 
 export function getAllProfiles(): Record<string, AttorneyProfile> {
