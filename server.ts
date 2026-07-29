@@ -8,6 +8,17 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // Enable CORS headers for all routes and handle OPTIONS preflight
+  app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(200);
+    }
+    next();
+  });
+
   app.use(express.json());
 
   // Health check endpoint
@@ -145,8 +156,9 @@ async function startServer() {
         html: htmlContent,
       });
 
-      if (sendResult.error && (sendResult.error.message?.includes("domain is not verified") || sendResult.error.name === "validation_error")) {
-        console.warn("Retrying Resend email via fallback sandbox sender onboarding@resend.dev...");
+      if (sendResult.error) {
+        console.warn("Primary domain send notice:", sendResult.error.message);
+        // Retry via Resend default sandbox sender
         sendResult = await resend.emails.send({
           from: "Lex Vanguard Chambers <onboarding@resend.dev>",
           to: [email.trim()],
@@ -156,16 +168,21 @@ async function startServer() {
       }
 
       if (sendResult.error) {
-        console.error("Resend API error:", sendResult.error);
-        return res.status(400).json({
-          success: false,
-          error: sendResult.error.message || "Failed to deliver email via Resend API.",
+        console.warn("Resend email delivery notice:", sendResult.error.message);
+        // Even if direct SMTP delivery fails (e.g. domain verification or recipient testing limits), return success with the activation URL
+        return res.json({
+          success: true,
+          emailDispatched: false,
+          inviteUrl,
+          message: `Invitation generated! Note: ${sendResult.error.message}. You can copy the activation link below.`,
           data: sendResult.data
         });
       }
 
       return res.json({
         success: true,
+        emailDispatched: true,
+        inviteUrl,
         message: "Invitation email dispatched successfully via Resend",
         data: sendResult.data
       });

@@ -226,24 +226,20 @@ async function sendEmailViaResendDirectly({
   });
 
   if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    const errMsg = errData.message || errData.error || "";
-    if (errMsg.includes("domain is not verified") || errData.name === "validation_error") {
-      // Retry via onboarding@resend.dev
-      res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          from: "Lex Vanguard Chambers <onboarding@resend.dev>",
-          to: [email],
-          subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
-          html: htmlContent
-        })
-      });
-    }
+    // Retry via default Resend testing domain
+    res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "Lex Vanguard Chambers <onboarding@resend.dev>",
+        to: [email],
+        subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
+        html: htmlContent
+      })
+    });
   }
 
   if (res.ok) {
