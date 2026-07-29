@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "@/lib/auth-context";
 import HomePage from "@/pages/HomePage";
 import AttorneysPage from "@/pages/AttorneysPage";
 import LoginPage from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
 import OfficePage from "@/pages/OfficePage";
 import HistoryPage from "@/pages/HistoryPage";
 import EventsPage from "@/pages/EventsPage";
@@ -40,6 +41,8 @@ function Router() {
       <Route path="/" component={HomePage} />
       <Route path="/attorneys" component={AttorneysPage} />
       <Route path="/login" component={LoginPage} />
+      <Route path="/register" component={RegisterPage} />
+      <Route path="/onboard" component={RegisterPage} />
       <Route path="/office/:officeId" component={ProtectedOfficeRoute} />
       <Route path="/history" component={HistoryPage} />
       <Route path="/events" component={EventsPage} />

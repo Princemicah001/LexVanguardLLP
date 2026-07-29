@@ -11,6 +11,7 @@ import {
   X, Upload, Plus, Pencil, ChevronDown, Loader2
 } from "lucide-react";
 import Header from "@/components/Header";
+import { InviteModal } from "@/components/InviteModal";
 import { makeAvatarSvg } from "@/lib/avatar";
 
 const OFFICE_CONFIG: Record<string, {
@@ -279,6 +280,7 @@ export default function OfficePage() {
 
   const [showCalendar, setShowCalendar] = useState(false);
   const [showNewFile, setShowNewFile] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [activeTask, setActiveTask] = useState<typeof TASKS[0] | null>(null);
   const [showAllAlerts, setShowAllAlerts] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -372,10 +374,13 @@ export default function OfficePage() {
   ];
   const visibleAlerts = showAllAlerts ? ALERTS : ALERTS.slice(0, 3);
 
+  const isFounder = firmUser && (firmUser.role.level >= 100 || ['prince', 'kelvin', 'donel'].includes(firmUser.officeId));
+
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900">
       {showCalendar && <CalendarModal onClose={() => setShowCalendar(false)} />}
       {showNewFile && <NewFileModal onClose={() => setShowNewFile(false)} />}
+      {showInviteModal && <InviteModal onClose={() => setShowInviteModal(false)} />}
       {activeTask && <TaskModal task={activeTask} onClose={() => setActiveTask(null)} />}
 
       <div className="bg-black">
@@ -403,6 +408,12 @@ export default function OfficePage() {
                 <p className="text-gray-500 text-xs italic mt-1 ml-5">{config.quote}</p>
               </div>
               <div className="flex gap-3 flex-wrap ml-5 md:ml-0">
+                {isFounder && (
+                  <button onClick={() => setShowInviteModal(true)}
+                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors shadow-md">
+                    <Users className="w-4 h-4" /> Invite Member
+                  </button>
+                )}
                 <button onClick={() => setShowCalendar(true)}
                   className="flex items-center gap-2 bg-white/10 border border-white/20 hover:bg-white/20 text-white px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors">
                   <Calendar className="w-4 h-4" /> Calendar

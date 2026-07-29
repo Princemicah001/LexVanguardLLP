@@ -6,7 +6,8 @@ import { uploadToImgBB, IMGBB_ALBUM_URL } from "@/lib/imgbb";
 import { makeAvatarSvg } from "@/lib/avatar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Pencil, X, Check, Phone, Mail, BookOpen, Star, ChevronDown, Loader2, ExternalLink } from "lucide-react";
+import { InviteModal } from "@/components/InviteModal";
+import { Pencil, X, Check, Phone, Mail, BookOpen, Star, ChevronDown, Loader2, ExternalLink, Users } from "lucide-react";
 
 function EditableText({
   value,
@@ -398,7 +399,10 @@ export default function AttorneysPage() {
   const { firmUser } = useAuth();
   const [members, setMembers] = useState<FirestoreMember[]>(DEFAULT_ATTORNEY_LIST);
   const [activeProfile, setActiveProfile] = useState<FirestoreMember | null>(null);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [showAll, setShowAll] = useState(false);
+
+  const isFounder = firmUser && (firmUser.role.level >= 100 || ['prince', 'kelvin', 'donel'].includes(firmUser.officeId));
 
   useEffect(() => {
     const unsubscribe = subscribeFirestoreMembers((updated) => {
@@ -411,6 +415,7 @@ export default function AttorneysPage() {
 
   return (
     <div className="w-full bg-white">
+      {showInviteModal && <InviteModal onClose={() => setShowInviteModal(false)} />}
       {activeProfile && (
         <ProfileModal
           member={activeProfile}
@@ -430,6 +435,18 @@ export default function AttorneysPage() {
         <p className="text-gray-400 max-w-xl mx-auto mt-6 text-sm leading-relaxed">
           A community of equals united by a common goal — every member is acknowledged and respected as intrinsically valuable to the whole.
         </p>
+
+        {isFounder && (
+          <div className="mt-8">
+            <button
+              onClick={() => setShowInviteModal(true)}
+              className="inline-flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-widest px-6 py-3 rounded-xl transition-all shadow-lg cursor-pointer"
+            >
+              <Users className="w-4 h-4" />
+              <span>Invite New Team Member (Founders Only)</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {firmUser && (

@@ -107,10 +107,17 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="mt-8 text-center">
-            <a href="/" className="text-yellow-500 font-bold text-xs uppercase tracking-widest hover:underline">
-              « Return to Homepage
-            </a>
+          <div className="mt-8 text-center space-y-2">
+            <div>
+              <a href="/register" className="text-indigo-600 font-bold text-xs uppercase tracking-wider hover:underline">
+                Received an invitation? Register Account →
+              </a>
+            </div>
+            <div>
+              <a href="/" className="text-slate-500 font-semibold text-xs uppercase tracking-widest hover:underline">
+                « Return to Homepage
+              </a>
+            </div>
           </div>
         </div>
       </div>
