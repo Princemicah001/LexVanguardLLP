@@ -7,6 +7,7 @@ import RegisterPage from "@/pages/RegisterPage";
 import OfficePage from "@/pages/OfficePage";
 import HistoryPage from "@/pages/HistoryPage";
 import EventsPage from "@/pages/EventsPage";
+import ResearchCoHelperPage from "@/pages/ResearchCoHelperPage";
 import UnderConstruction from "@/pages/UnderConstruction";
 import NotFound from "@/pages/not-found";
 
@@ -44,6 +45,8 @@ function Router() {
       <Route path="/register" component={RegisterPage} />
       <Route path="/onboard" component={RegisterPage} />
       <Route path="/office/:officeId" component={ProtectedOfficeRoute} />
+      <Route path="/research" component={ResearchCoHelperPage} />
+      <Route path="/research-cohelper" component={ResearchCoHelperPage} />
       <Route path="/history" component={HistoryPage} />
       <Route path="/events" component={EventsPage} />
       <Route path="/news" component={EventsPage} />

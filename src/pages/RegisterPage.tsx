@@ -159,12 +159,24 @@ export default function RegisterPage() {
       <main className="flex-1 flex items-center justify-center p-4 py-24">
         <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow-sm p-8">
           
-          <div className="mb-6 text-center">
-            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
-              Counsel Account Registration
+          <div className="bg-[#FAF8F5] border border-amber-200/60 p-5 rounded-lg mb-6 flex flex-col items-center text-center shadow-2xs">
+            <div className="w-18 h-18 md:w-20 md:h-20 mb-3 overflow-hidden">
+              <img src="/brand-logo.svg" alt="LexVanguard Logo" className="w-full h-full object-contain" />
+            </div>
+            <h1 className="text-lg font-serif font-extrabold text-[#0A1F44] uppercase tracking-[0.2em] leading-tight">
+              LEXVANGUARD
             </h1>
+            <span className="text-[9px] font-bold text-[#0A1F44]/80 uppercase tracking-[0.25em] mt-0.5">
+              ADVOCATES LLP
+            </span>
+          </div>
+
+          <div className="mb-6 text-center">
+            <h2 className="text-lg font-bold text-gray-900 tracking-tight">
+              Counsel Account Registration
+            </h2>
             <p className="text-xs text-gray-500 mt-1">
-              Enter your information to create your Counsel Office account.
+              Enter your information to register your LexVanguard Advocates counsel portal account.
             </p>
           </div>
 

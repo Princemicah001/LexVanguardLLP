@@ -195,10 +195,10 @@ async function startServer() {
     }
   });
 
-  // LexAI Legal Research API endpoint powered by Gemini
+  // LexAI Legal Research API endpoint powered by Gemini with Google Search Grounding
   app.post("/api/lexai", async (req, res) => {
     try {
-      const { query } = req.body;
+      const { query, matterTitle, caseContext } = req.body;
       if (!query || typeof query !== "string") {
         return res.status(400).json({ error: "Legal query parameter is required" });
       }
@@ -206,27 +206,172 @@ async function startServer() {
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) {
         return res.json({
-          answer: `LexAI Statutory Research for "${query}":\n\n• Legal Framework: Laws of Kenya & Constitution of Kenya 2010.\n• Precedents: Relevant appellate authority under the High Court and Court of Appeal of Kenya.\n• Note: Configure GEMINI_API_KEY in Secrets for live AI statutory analysis.`
+          answer: `LexAI Statutory & Case Law Research for "${query}":\n\n• Legal Framework: Laws of Kenya & Constitution of Kenya 2010.\n• Precedents: Relevant authority under the High Court, Court of Appeal, and Supreme Court of Kenya.\n• Note: Configure GEMINI_API_KEY in environment for live AI search-grounded legal research.`,
+          sources: []
         });
       }
 
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: `You are LexAI, an elite legal research assistant for LexVanguard LLP, a premier law firm at Mounk Kenya University.
-Answer the following legal research query accurately, professionally, and concisely with specific reference to Kenyan statutes (Constitution of Kenya 2010, Civil Procedure Act, Companies Act, Data Protection Act) and case law precedents where relevant. Format clearly with bullet points.
-
-Legal Query: ${query}`,
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
       });
 
-      const text = response.text || "No specific legal precedent returned.";
-      return res.json({ answer: text });
+      const promptText = `You are LexAI, an elite legal research co-helper for LexVanguard Chambers.
+${matterTitle ? `Case / Matter Context: ${matterTitle}` : ""}
+${caseContext ? `Case Facts & Context: ${caseContext}` : ""}
+
+Research Query: ${query}
+
+Provide a comprehensive, authoritative legal research response. Include:
+1. Core Legal Principles & Statutory Provisions (citing specific sections from Constitution of Kenya 2010, Civil Procedure Act, Companies Act, Data Protection Act, Evidence Act, or relevant legal codes).
+2. Key Judicial Precedents & Ratio Decidendi (referencing High Court, Court of Appeal, or Supreme Court decisions).
+3. Strategic Legal Analysis & Recommendations for Counsel.
+4. Summary Arguments to present in court or advisory brief.
+
+Use Google Search grounding to retrieve real-time authentic precedents, statutory citations, and court rulings. Format with clear headings and bullet points.`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.6-flash",
+        contents: promptText,
+        config: {
+          tools: [{ googleSearch: {} }]
+        }
+      });
+
+      const text = response.text || "No specific legal research result generated.";
+      
+      // Extract grounding source citations
+      const sources: Array<{ title: string; uri: string }> = [];
+      const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
+      if (Array.isArray(chunks)) {
+        chunks.forEach((chunk: any) => {
+          if (chunk?.web?.uri) {
+            sources.push({
+              title: chunk.web.title || chunk.web.uri,
+              uri: chunk.web.uri
+            });
+          }
+        });
+      }
+
+      return res.json({ answer: text, sources });
     } catch (error: any) {
       console.error("LexAI Error:", error);
       return res.status(500).json({ 
-        error: "Failed to process legal query",
+        error: "Failed to process legal research query",
         details: error.message 
       });
+    }
+  });
+
+  // API Endpoint: Document Analysis & Case Material Review
+  app.post("/api/research/analyze-document", async (req, res) => {
+    try {
+      const { documentTitle, documentContent, matterTitle } = req.body;
+      if (!documentContent || typeof documentContent !== "string") {
+        return res.status(400).json({ error: "Document content is required" });
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        return res.json({
+          analysis: `Document Analysis for "${documentTitle || 'Legal Material'}":\n\n1. Key Facts: Document contains legal arguments or evidence for ${matterTitle || 'active case'}.\n2. Applicable Statutes: Civil Procedure Act & Evidence Act Cap 80.\n3. Note: Attach GEMINI_API_KEY for complete AI legal breakdown.`
+        });
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const promptText = `You are a Senior Legal Analyst for LexVanguard Chambers.
+Analyze the following case document/material for ${matterTitle ? `Matter: "${matterTitle}"` : "the firm's legal file"}.
+
+Document Title: ${documentTitle || "Case Document"}
+Document Content:
+"""
+${documentContent}
+"""
+
+Please provide a structured legal analysis report:
+1. Executive Summary & Core Objective of the Document
+2. Key Material Facts & Admissions
+3. Statutory & Precedent Foundations
+4. Potential Vulnerabilities & Opposing Counter-Arguments
+5. Recommended Follow-Up Actions & Evidence Gathering`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.6-flash",
+        contents: promptText,
+      });
+
+      return res.json({ analysis: response.text || "Analysis completed." });
+    } catch (error: any) {
+      console.error("Document Analysis Error:", error);
+      return res.status(500).json({ error: "Failed to analyze legal document", details: error.message });
+    }
+  });
+
+  // API Endpoint: Draft Court Submissions & Briefs
+  app.post("/api/research/draft-submission", async (req, res) => {
+    try {
+      const { submissionType, matterTitle, clientName, facts, researchNotes, courtForum } = req.body;
+      if (!submissionType || !matterTitle) {
+        return res.status(400).json({ error: "Submission type and matter title are required" });
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        return res.json({
+          draft: `IN THE ${courtForum || "HIGH COURT OF KENYA"}\n\nMATTER: ${matterTitle}\nCLIENT: ${clientName || "Client"}\n\n[DRAFT ${submissionType.toUpperCase()}]\n\n1. Take notice that the Applicant intends to move this Honorable Court for orders under the Civil Procedure Rules.\n2. Ground 1: Based on established statutory authorities.\n\n(Configure GEMINI_API_KEY for full AI submission drafting)`
+        });
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+
+      const promptText = `You are a Master Legal Drafter at LexVanguard Chambers.
+Draft a complete, formal, highly detailed ${submissionType} for court filing or legal client advisory.
+
+CASE DETAILS:
+- Court / Forum: ${courtForum || "High Court of Kenya"}
+- Matter Title: ${matterTitle}
+- Client Name: ${clientName || "The Client / Applicant"}
+- Background Facts: ${facts || "As set out in the pleadings and supporting affidavit."}
+- Legal Research & Precedent Notes: ${researchNotes || "Standard statutory requirements under Kenyan law."}
+
+DRAFTING INSTRUCTIONS:
+- Use formal legal court language, standard numbering, statutory citations, and formal preamble (IN THE COURT OF...).
+- Include specific legal grounds, statutory sections, and case citations (using Google Search grounding if needed for real citations).
+- Provide a clear, comprehensive "PRAYER FOR RELIEF" or "LEGAL CONCLUSION" section.
+- Formatted in clear Markdown suitable for copying directly into court filings or word processors.`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.6-flash",
+        contents: promptText,
+        config: {
+          tools: [{ googleSearch: {} }]
+        }
+      });
+
+      return res.json({ draft: response.text || "Submission draft created." });
+    } catch (error: any) {
+      console.error("Drafting Error:", error);
+      return res.status(500).json({ error: "Failed to generate submission draft", details: error.message });
     }
   });
 

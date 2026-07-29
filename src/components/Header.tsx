@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth-context";
 import { Phone, Search, Menu, X } from "lucide-react";
 import RotatingPhoneDisplay from "@/components/RotatingPhoneDisplay";
+import { LexVanguardLogo } from "@/components/LexVanguardLogo";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -12,6 +13,7 @@ export default function Header() {
   const navLinks = [
     { label: "Our Firm", href: "/" },
     { label: "Attorneys", href: "/attorneys" },
+    { label: "Legal Research", href: "/research" },
     { label: "Events & Symposia", href: "/events" },
     { label: "Practice Areas", href: "/services" },
     { label: "History", href: "/history" },
@@ -26,21 +28,33 @@ export default function Header() {
 
   return (
     <header className="absolute top-0 left-0 w-full z-50 bg-gradient-to-b from-black/80 to-transparent">
-      <div className="max-w-[1600px] mx-auto px-6 py-6 flex justify-between items-start">
-        <Link href="/" className="flex flex-col cursor-pointer border-l-[3px] border-yellow-500 pl-3 mt-2">
-          <span className="text-3xl md:text-4xl font-extrabold text-white leading-none tracking-wide">
-            LEX<br />VANGUARD
-          </span>
-          <span className="text-[9px] md:text-[10px] tracking-[0.15em] text-gray-400 uppercase mt-1">Counsels at Law</span>
+      <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-4 md:py-6 flex justify-between items-start gap-2">
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer group shrink-0">
+          {/* Official Brand Logo SVG */}
+          <div className="w-14 h-14 sm:w-18 sm:h-18 md:w-22 md:h-22 shrink-0 transition-transform group-hover:scale-105">
+            <img 
+              src="/brand-logo.svg" 
+              alt="LexVanguard Logo" 
+              className="w-full h-full object-contain brightness-0 invert"
+            />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-lg sm:text-xl md:text-2xl font-serif font-extrabold text-white leading-none tracking-[0.16em] uppercase">
+              LEXVANGUARD
+            </span>
+            <span className="text-[9px] sm:text-[10px] md:text-[11px] font-semibold tracking-[0.25em] text-[#C9A55C] uppercase mt-1">
+              ADVOCATES LLP
+            </span>
+          </div>
         </Link>
 
-        <div className="flex flex-col items-end mt-1">
-          <div className="flex items-center mb-5">
-            <Phone className="text-white mr-3 w-4 h-4 fill-current" />
-            <div className="h-5 w-px bg-white/50 mr-3" />
-            <RotatingPhoneDisplay className="text-yellow-500 font-bold text-lg md:text-xl tracking-wider mr-6" />
-            <button className="border-2 border-white p-1 hover:bg-white hover:text-black transition-colors group">
-              <Search className="w-4 h-4 group-hover:text-black" strokeWidth={3} />
+        <div className="flex flex-col items-end mt-1 shrink-0">
+          <div className="flex items-center mb-2 sm:mb-4 shrink-0">
+            <Phone className="text-white mr-2 w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current shrink-0" />
+            <div className="h-4 sm:h-5 w-px bg-white/50 mr-2 shrink-0" />
+            <RotatingPhoneDisplay className="text-yellow-500 font-bold text-xs sm:text-base md:text-xl tracking-wider mr-2 sm:mr-6" />
+            <button className="border-2 border-white p-1 hover:bg-white hover:text-black transition-colors group shrink-0">
+              <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:text-black" strokeWidth={3} />
             </button>
           </div>
 

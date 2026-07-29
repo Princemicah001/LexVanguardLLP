@@ -58,11 +58,24 @@ export default function LoginPage() {
       <div className="bg-black">
         <Header />
       </div>
-      <div className="flex-1 flex items-center justify-center py-20 px-4 pt-40">
-        <div className="bg-white p-10 w-full max-w-md border-t-4 border-black shadow-lg">
-          <h2 className="text-3xl font-serif text-black text-center mb-6">Portal Access</h2>
-          <p className="text-gray-600 text-center mb-8 text-sm">
-            Please authenticate with your firm credentials to access the Vanguard system.
+      <div className="flex-1 flex items-center justify-center py-20 px-4 pt-36">
+        <div className="bg-white p-8 md:p-10 w-full max-w-md border-t-4 border-[#0A1F44] shadow-xl rounded-b-xl">
+          {/* Logo Card Header */}
+          <div className="bg-[#FAF8F5] border border-amber-200/60 p-6 rounded-lg mb-6 flex flex-col items-center text-center shadow-2xs">
+            <div className="w-20 h-20 md:w-24 md:h-24 mb-3 overflow-hidden">
+              <img src="/brand-logo.svg" alt="LexVanguard Logo" className="w-full h-full object-contain" />
+            </div>
+            <h1 className="text-xl font-serif font-extrabold text-[#0A1F44] uppercase tracking-[0.2em] leading-tight">
+              LEXVANGUARD
+            </h1>
+            <span className="text-[10px] font-bold text-[#0A1F44]/80 uppercase tracking-[0.3em] mt-1">
+              ADVOCATES LLP
+            </span>
+          </div>
+
+          <h2 className="text-xl font-serif text-slate-900 text-center mb-2 font-bold">Chambers Portal Login</h2>
+          <p className="text-gray-600 text-center mb-6 text-xs">
+            Authenticate with your firm credentials to access the LexVanguard Advocates system.
           </p>
 
           <div className="space-y-4">
@@ -103,16 +116,11 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 font-bold text-sm uppercase tracking-widest transition-colors mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Loading Office..." : "Authenticate"}
+              {loading ? "Loading Office..." : "LOGIN"}
             </button>
           </div>
 
           <div className="mt-8 text-center space-y-2">
-            <div>
-              <a href="/register" className="text-indigo-600 font-bold text-xs uppercase tracking-wider hover:underline">
-                Received an invitation? Register Account →
-              </a>
-            </div>
             <div>
               <a href="/" className="text-slate-500 font-semibold text-xs uppercase tracking-widest hover:underline">
                 « Return to Homepage

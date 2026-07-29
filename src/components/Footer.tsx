@@ -6,7 +6,25 @@ export default function Footer() {
     <footer className="bg-[#111111] text-gray-400 py-16 px-4">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="col-span-1 text-left">
-          <h3 className="text-2xl font-serif text-white mb-6 uppercase tracking-widest">LexVanguard</h3>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-10 shrink-0">
+              <svg viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                <path d="M50 5 L90 20 C90 70 70 100 50 115 C30 100 10 70 10 20 Z" stroke="#FFFFFF" strokeWidth="6" fill="none" />
+                <path d="M50 30 L50 85 M40 85 L60 85" stroke="#FFFFFF" strokeWidth="5" strokeLinecap="round" />
+                <path d="M28 42 L72 42" stroke="#FFFFFF" strokeWidth="5" strokeLinecap="round" />
+                <path d="M28 42 L20 62 L36 62 Z" stroke="#FFFFFF" strokeWidth="4" fill="none" />
+                <path d="M72 42 L64 62 L80 62 Z" stroke="#FFFFFF" strokeWidth="4" fill="none" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-xl font-serif font-extrabold text-white uppercase tracking-[0.18em] leading-none">
+                LexVanguard
+              </h3>
+              <span className="text-[10px] font-semibold text-[#C9A55C] uppercase tracking-[0.25em] block mt-1">
+                Advocates LLP
+              </span>
+            </div>
+          </div>
           <p className="text-sm font-light leading-relaxed text-gray-500 mb-6">
             A tradition of excellence. A commitment to rigorous and innovative legal strategy across the nation.
           </p>
