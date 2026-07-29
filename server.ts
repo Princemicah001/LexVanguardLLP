@@ -30,7 +30,7 @@ async function startServer() {
 
       const apiKey = process.env.RESEND_API_KEY;
       if (!apiKey) {
-        return res.status(500).json({ success: false, error: "RESEND_API_KEY environment variable is not configured." });
+        return res.status(500).json({ success: false, error: "RESEND_API_KEY environment variable is not configured on the server." });
       }
 
       const resend = new Resend(apiKey);

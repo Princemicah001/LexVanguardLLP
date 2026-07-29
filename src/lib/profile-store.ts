@@ -149,6 +149,15 @@ export function syncProfileFromFirestore(data: Partial<AttorneyProfile> & { name
   return updated;
 }
 
+function cleanFirestorePayload<T extends Record<string, any>>(data: T): Record<string, any> {
+  const cleaned: Record<string, any> = {};
+  for (const key of Object.keys(data)) {
+    const val = data[key];
+    cleaned[key] = val === undefined ? "" : val;
+  }
+  return cleaned;
+}
+
 export function saveProfile(profile: AttorneyProfile): void {
   // Ensure profilePhoto is in sync with image
   const profileToSave = {
@@ -178,7 +187,7 @@ export function saveProfile(profile: AttorneyProfile): void {
     try {
       const canonicalKey = getCanonicalKey(profileToSave.name, profileToSave.email);
       if (db && canonicalKey) {
-        let finalImage = profileToSave.image || profileToSave.profilePhoto;
+        let finalImage = profileToSave.image || profileToSave.profilePhoto || "";
 
         // If image is a large Base64 string (>100KB), compress it first so Firestore setDoc never fails
         if (finalImage && finalImage.startsWith("data:image/") && finalImage.length > 100000) {
@@ -187,33 +196,33 @@ export function saveProfile(profile: AttorneyProfile): void {
           } catch {}
         }
 
-        const userProfilePayload = {
-          uid: canonicalKey,
-          name: profileToSave.name,
-          displayName: profileToSave.name,
-          title: profileToSave.title,
-          practice: profileToSave.practice,
-          bio: profileToSave.bio,
-          phone: profileToSave.phone,
-          email: profileToSave.email,
-          education: profileToSave.education,
-          achievements: profileToSave.achievements,
-          profilePhoto: finalImage,
-          image: finalImage,
-          photoURL: finalImage,
-          avatar: finalImage,
+        const userProfilePayload = cleanFirestorePayload({
+          uid: canonicalKey || "",
+          name: profileToSave.name || "",
+          displayName: profileToSave.name || "",
+          title: profileToSave.title || "Counsel",
+          practice: profileToSave.practice || "Legal Advisory",
+          bio: profileToSave.bio || "",
+          phone: profileToSave.phone || "",
+          email: profileToSave.email || "",
+          education: profileToSave.education || "",
+          achievements: profileToSave.achievements || "",
+          profilePhoto: finalImage || "",
+          image: finalImage || "",
+          photoURL: finalImage || "",
+          avatar: finalImage || "",
           updatedAt: new Date().toISOString()
-        };
+        });
 
-        const usersPayload = {
-          uid: canonicalKey,
-          name: profileToSave.name,
-          displayName: profileToSave.name,
-          title: profileToSave.title,
-          practice: profileToSave.practice,
-          email: profileToSave.email,
+        const usersPayload = cleanFirestorePayload({
+          uid: canonicalKey || "",
+          name: profileToSave.name || "",
+          displayName: profileToSave.name || "",
+          title: profileToSave.title || "Counsel",
+          practice: profileToSave.practice || "",
+          email: profileToSave.email || "",
           updatedAt: new Date().toISOString()
-        };
+        });
 
         // Write user profile data with photos to "userProfiles" collection
         await setDoc(doc(db, "userProfiles", canonicalKey), userProfilePayload, { merge: true });
@@ -241,7 +250,7 @@ export async function syncLocalProfilesToFirestore(): Promise<void> {
       if (!prof) continue;
 
       const canonicalKey = getCanonicalKey(prof.name, prof.email);
-      let finalImage = prof.image || prof.profilePhoto;
+      let finalImage = prof.image || prof.profilePhoto || "";
 
       if (finalImage && finalImage.startsWith("data:image/") && finalImage.length > 100000) {
         try {
@@ -249,33 +258,33 @@ export async function syncLocalProfilesToFirestore(): Promise<void> {
         } catch {}
       }
 
-      const userProfilePayload = {
-        uid: canonicalKey,
-        name: prof.name,
-        displayName: prof.name,
-        title: prof.title,
-        practice: prof.practice,
-        bio: prof.bio,
-        phone: prof.phone,
-        email: prof.email,
-        education: prof.education,
-        achievements: prof.achievements,
-        profilePhoto: finalImage,
-        image: finalImage,
-        photoURL: finalImage,
-        avatar: finalImage,
+      const userProfilePayload = cleanFirestorePayload({
+        uid: canonicalKey || "",
+        name: prof.name || "",
+        displayName: prof.name || "",
+        title: prof.title || "Counsel",
+        practice: prof.practice || "Legal Advisory",
+        bio: prof.bio || "",
+        phone: prof.phone || "",
+        email: prof.email || "",
+        education: prof.education || "",
+        achievements: prof.achievements || "",
+        profilePhoto: finalImage || "",
+        image: finalImage || "",
+        photoURL: finalImage || "",
+        avatar: finalImage || "",
         updatedAt: new Date().toISOString()
-      };
+      });
 
-      const usersPayload = {
-        uid: canonicalKey,
-        name: prof.name,
-        displayName: prof.name,
-        title: prof.title,
-        practice: prof.practice,
-        email: prof.email,
+      const usersPayload = cleanFirestorePayload({
+        uid: canonicalKey || "",
+        name: prof.name || "",
+        displayName: prof.name || "",
+        title: prof.title || "Counsel",
+        practice: prof.practice || "",
+        email: prof.email || "",
         updatedAt: new Date().toISOString()
-      };
+      });
 
       if (canonicalKey) {
         await setDoc(doc(db, "userProfiles", canonicalKey), userProfilePayload, { merge: true });
