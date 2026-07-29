@@ -82,16 +82,20 @@ export async function sendTeamMemberInvite({
 
     if (apiRes.ok && data.success) {
       emailDispatched = true;
-    } else if (apiRes.status === 405 || apiRes.status === 404) {
-      // If hosted on a static web host (e.g. lexvanguard.lexshub.xyz) where POST /api/send-invite returns 405, fallback to direct Resend API
+    } else if (data.error) {
+      resendError = data.error;
+      // Try direct Resend client fallback with domain check
       try {
         emailDispatched = await sendEmailViaResendDirectly(payload);
       } catch (fbErr: any) {
-        resendError = fbErr.message || "Direct Resend dispatch failed.";
+        resendError = fbErr.message || resendError;
       }
     } else {
-      resendError = data.error || `Email service error (HTTP ${apiRes.status})`;
-      console.error("Resend dispatch notice:", resendError);
+      try {
+        emailDispatched = await sendEmailViaResendDirectly(payload);
+      } catch (fbErr: any) {
+        resendError = fbErr.message || "Email dispatch failed.";
+      }
     }
   } catch (err: any) {
     try {
@@ -102,14 +106,20 @@ export async function sendTeamMemberInvite({
     }
   }
 
-  if (!emailDispatched && resendError) {
-    throw new Error(resendError);
+  if (emailDispatched) {
+    return {
+      success: true,
+      inviteUrl,
+      message: `Invitation email successfully dispatched via Resend to ${cleanEmail}!`
+    };
   }
 
+  // If email dispatch could not be sent (e.g. unverified domain or testing recipient limits),
+  // return success with the generated invite URL so the admin can copy and send it directly!
   return {
     success: true,
     inviteUrl,
-    message: `Invitation email dispatched via Resend (onboarding@lexshub.xyz) to ${cleanEmail}!`
+    message: `Invitation link created for ${cleanEmail}! (Note: Direct email notice: ${resendError || "Domain unverified on Resend"}). You can copy the activation link below.`
   };
 
 }
@@ -196,7 +206,7 @@ async function sendEmailViaResendDirectly({
 </html>
 `;
 
-  const res = await fetch("https://api.resend.com/emails", {
+  let res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${apiKey}`,
@@ -209,6 +219,27 @@ async function sendEmailViaResendDirectly({
       html: htmlContent
     })
   });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    const errMsg = errData.message || errData.error || "";
+    if (errMsg.includes("domain is not verified") || errData.name === "validation_error") {
+      // Retry via onboarding@resend.dev
+      res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          from: "Lex Vanguard Chambers <onboarding@resend.dev>",
+          to: [email],
+          subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
+          html: htmlContent
+        })
+      });
+    }
+  }
 
   if (res.ok) {
     return true;

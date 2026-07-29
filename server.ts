@@ -138,26 +138,36 @@ async function startServer() {
 </html>
 `;
 
-      const { data, error } = await resend.emails.send({
+      let sendResult = await resend.emails.send({
         from: "Lex Vanguard Chambers <onboarding@lexshub.xyz>",
         to: [email.trim()],
         subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
         html: htmlContent,
       });
 
-      if (error) {
-        console.error("Resend API error:", error);
+      if (sendResult.error && (sendResult.error.message?.includes("domain is not verified") || sendResult.error.name === "validation_error")) {
+        console.warn("Retrying Resend email via fallback sandbox sender onboarding@resend.dev...");
+        sendResult = await resend.emails.send({
+          from: "Lex Vanguard Chambers <onboarding@resend.dev>",
+          to: [email.trim()],
+          subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
+          html: htmlContent,
+        });
+      }
+
+      if (sendResult.error) {
+        console.error("Resend API error:", sendResult.error);
         return res.status(400).json({
           success: false,
-          error: error.message || "Failed to deliver email via Resend API.",
-          data
+          error: sendResult.error.message || "Failed to deliver email via Resend API.",
+          data: sendResult.data
         });
       }
 
       return res.json({
         success: true,
         message: "Invitation email dispatched successfully via Resend",
-        data
+        data: sendResult.data
       });
     } catch (err: any) {
       console.error("Resend API Exception:", err);
