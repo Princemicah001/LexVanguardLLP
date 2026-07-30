@@ -160,7 +160,7 @@ export default function RegisterPage() {
         <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow-sm p-8">
           
           <div className="bg-[#FAF8F5] border border-amber-200/60 p-5 rounded-lg mb-6 flex flex-col items-center text-center shadow-2xs">
-            <div className="w-18 h-18 md:w-20 md:h-20 mb-3 overflow-hidden">
+            <div className="w-36 h-36 md:w-40 md:h-40 mb-3 overflow-hidden">
               <img src="/brand-logo.svg" alt="LexVanguard Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-lg font-serif font-extrabold text-[#0A1F44] uppercase tracking-[0.2em] leading-tight">

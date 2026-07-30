@@ -62,15 +62,9 @@ export default function LoginPage() {
         <div className="bg-white p-8 md:p-10 w-full max-w-md border-t-4 border-[#0A1F44] shadow-xl rounded-b-xl">
           {/* Logo Card Header */}
           <div className="bg-[#FAF8F5] border border-amber-200/60 p-6 rounded-lg mb-6 flex flex-col items-center text-center shadow-2xs">
-            <div className="w-20 h-20 md:w-24 md:h-24 mb-3 overflow-hidden">
+            <div className="w-40 h-40 md:w-48 md:h-48 mb-3 overflow-hidden">
               <img src="/brand-logo.svg" alt="LexVanguard Logo" className="w-full h-full object-contain" />
             </div>
-            <h1 className="text-xl font-serif font-extrabold text-[#0A1F44] uppercase tracking-[0.2em] leading-tight">
-              LEXVANGUARD
-            </h1>
-            <span className="text-[10px] font-bold text-[#0A1F44]/80 uppercase tracking-[0.3em] mt-1">
-              ADVOCATES LLP
-            </span>
           </div>
 
           <h2 className="text-xl font-serif text-slate-900 text-center mb-2 font-bold">Chambers Portal Login</h2>
