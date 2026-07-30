@@ -104,7 +104,7 @@ export default function HomePage() {
               className="w-full h-full object-cover opacity-80"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/40 to-black/90" />
-            <div className="relative z-10 w-full h-full max-w-[1600px] mx-auto px-6 pt-32 pb-24 flex items-center justify-end">
+            <div className="relative z-10 w-full h-full px-6 sm:px-10 lg:px-16 pt-32 pb-24 flex items-center justify-end">
               <div className="w-full sm:w-[80%] md:w-[70%] lg:w-[60%] border-l-[4px] md:border-l-[6px] border-yellow-500 pl-4 md:pl-8 lg:pr-20">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.15] md:leading-[1.1] tracking-tight">
                   {s.lines.map((line, j) => (
@@ -138,13 +138,13 @@ export default function HomePage() {
 
       {/* Intro Section */}
       <div id="intro-section" className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+        <div className="w-full px-6 sm:px-10 lg:px-16 text-center">
           <h2 className="text-4xl font-bold mb-6 text-black uppercase tracking-wider">Welcome to LexVanguard</h2>
           <div className="h-1 w-16 bg-yellow-500 mx-auto mb-8" />
-          <p className="text-gray-700 leading-loose text-lg mb-6">
+          <p className="text-gray-700 leading-loose text-lg mb-6 max-w-5xl mx-auto">
             Recognized as one of the most prestigious student-led law firms at Mounk Kenya University, LexVanguard's reputation extends across the country. We are not merely a university society — we are a formidable incubator for legal talent, providing hands-on experience that bridges the gap between academic theory and real-world legal practice.
           </p>
-          <p className="text-gray-600 leading-loose text-base mb-10">
+          <p className="text-gray-600 leading-loose text-base mb-10 max-w-5xl mx-auto">
             In an environment where students often feel underprepared for the rigors of legal practice, LexVanguard offers a structured, professional space where emerging legal minds are equipped with the skills, networks, and confidence to succeed. Our members engage in rigorous legal research, litigation training, moot court advocacy, legal writing, and client advisory — developing the full spectrum of skills demanded by the modern legal profession.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-10">
@@ -165,7 +165,7 @@ export default function HomePage() {
 
       {/* Core Philosophy */}
       <div className="bg-gray-50 py-20">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="w-full px-6 sm:px-10 lg:px-16">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4 text-black uppercase tracking-wider">Our Core Philosophy</h2>
             <div className="h-1 w-16 bg-yellow-500 mx-auto" />
@@ -191,11 +191,11 @@ export default function HomePage() {
 
       {/* What We Do */}
       <div className="py-20 bg-black text-white">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="w-full px-6 sm:px-10 lg:px-16">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4 text-white uppercase tracking-wider">What We Do</h2>
             <div className="h-1 w-16 bg-yellow-500 mx-auto mb-6" />
-            <p className="text-gray-400 max-w-2xl mx-auto text-base leading-relaxed">
+            <p className="text-gray-400 max-w-3xl mx-auto text-base leading-relaxed">
               LexVanguard moves beyond the textbook to provide hands-on experience across the full spectrum of legal practice.
             </p>
           </div>
@@ -220,7 +220,7 @@ export default function HomePage() {
 
       {/* Attorneys Teaser */}
       <div className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
+        <div className="w-full px-6 sm:px-10 lg:px-16 flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-2/3 pr-8 mb-8 md:mb-0">
             <h2 className="text-4xl font-bold text-black mb-2 uppercase tracking-wider">Our Attorneys</h2>
             <div className="h-1 w-10 bg-yellow-500 mb-6" />
@@ -257,7 +257,7 @@ export default function HomePage() {
 
       {/* Vision Banner */}
       <div className="bg-black border-t-4 border-yellow-500 py-16 px-6 text-center">
-        <div className="max-w-3xl mx-auto">
+        <div className="w-full max-w-5xl mx-auto px-4">
           <p className="text-yellow-500 uppercase tracking-[0.3em] text-xs font-bold mb-4">Our Vision</p>
           <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-6">
             To become a world-class pillar of justice

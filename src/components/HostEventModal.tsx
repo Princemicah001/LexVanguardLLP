@@ -68,23 +68,23 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-neutral-950 border-2 border-yellow-500 shadow-2xl overflow-hidden text-white">
-        <div className="bg-neutral-900 p-6 border-b border-yellow-500/30 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0A1F44]/80 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-white border border-amber-200 shadow-2xl rounded-2xl overflow-hidden text-slate-900">
+        <div className="bg-[#0A1F44] p-6 border-b-2 border-amber-500 flex items-center justify-between text-white">
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-5 h-5 text-yellow-500" />
-            <h3 className="text-xl font-extrabold uppercase tracking-wide text-white">
+            <Sparkles className="w-5 h-5 text-amber-400" />
+            <h3 className="text-xl font-serif font-extrabold uppercase tracking-wide text-white">
               Host New Firm Event / Symposium
             </h3>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+          <button onClick={onClose} className="text-slate-300 hover:text-white cursor-pointer">
             <X className="w-6 h-6" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 max-h-[80vh] overflow-y-auto space-y-4">
           <div>
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300 mb-1">
+            <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#0A1F44] mb-1">
               Event Title *
             </label>
             <input
@@ -93,19 +93,19 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. 2026 East Africa Corporate Law & Tax Summit"
-              className="w-full bg-neutral-900 border border-white/20 focus:border-yellow-500 text-white px-4 py-2.5 text-sm focus:outline-none"
+              className="w-full bg-white border border-stone-300 focus:border-[#0A1F44] text-slate-900 px-4 py-2.5 text-sm rounded-lg focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300 mb-1">
+              <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#0A1F44] mb-1">
                 Category
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as any)}
-                className="w-full bg-neutral-900 border border-white/20 focus:border-yellow-500 text-white px-4 py-2.5 text-sm focus:outline-none"
+                className="w-full bg-white border border-stone-300 focus:border-[#0A1F44] text-slate-900 px-4 py-2.5 text-sm rounded-lg focus:outline-none"
               >
                 <option value="Keynote & Summit">Keynote & Summit</option>
                 <option value="CLE & Workshop">CLE & Masterclass</option>
@@ -116,7 +116,7 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300 mb-1">
+              <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#0A1F44] mb-1">
                 CPD Units / Accreditation
               </label>
               <input
@@ -124,14 +124,14 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
                 value={cpdCredits}
                 onChange={(e) => setCpdCredits(e.target.value)}
                 placeholder="e.g. 3.0 LSK CPD Units"
-                className="w-full bg-neutral-900 border border-white/20 focus:border-yellow-500 text-white px-4 py-2.5 text-sm focus:outline-none"
+                className="w-full bg-white border border-stone-300 focus:border-[#0A1F44] text-slate-900 px-4 py-2.5 text-sm rounded-lg focus:outline-none"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300 mb-1">
+              <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#0A1F44] mb-1">
                 Date *
               </label>
               <input
@@ -139,12 +139,12 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-neutral-900 border border-white/20 focus:border-yellow-500 text-white px-4 py-2.5 text-sm focus:outline-none"
+                className="w-full bg-white border border-stone-300 focus:border-[#0A1F44] text-slate-900 px-4 py-2.5 text-sm rounded-lg focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300 mb-1">
+              <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#0A1F44] mb-1">
                 Time Window *
               </label>
               <input
@@ -153,13 +153,13 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
                 placeholder="e.g. 09:00 AM - 04:00 PM EAT"
-                className="w-full bg-neutral-900 border border-white/20 focus:border-yellow-500 text-white px-4 py-2.5 text-sm focus:outline-none"
+                className="w-full bg-white border border-stone-300 focus:border-[#0A1F44] text-slate-900 px-4 py-2.5 text-sm rounded-lg focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300 mb-1">
+            <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#0A1F44] mb-1">
               Venue / Location
             </label>
             <input
@@ -167,7 +167,7 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="e.g. Supreme Court Conference Hall & Virtual"
-              className="w-full bg-neutral-900 border border-white/20 focus:border-yellow-500 text-white px-4 py-2.5 text-sm focus:outline-none"
+              className="w-full bg-white border border-stone-300 focus:border-[#0A1F44] text-slate-900 px-4 py-2.5 text-sm rounded-lg focus:outline-none"
             />
           </div>
 
@@ -177,16 +177,16 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
               id="isVirtual"
               checked={isVirtual}
               onChange={(e) => setIsVirtual(e.target.checked)}
-              className="w-4 h-4 accent-yellow-500"
+              className="w-4 h-4 accent-amber-600 cursor-pointer"
             />
-            <label htmlFor="isVirtual" className="text-xs font-bold text-gray-300 uppercase tracking-wider">
+            <label htmlFor="isVirtual" className="text-xs font-serif font-bold text-slate-800 uppercase tracking-wider cursor-pointer">
               Includes Live Virtual Broadcast Stream
             </label>
           </div>
 
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300">
+              <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#0A1F44]">
                 Banner Image URL
               </label>
               <div className="flex items-center gap-3">
@@ -194,11 +194,11 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
                   href={IMGBB_ALBUM_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs font-bold text-gray-400 hover:text-yellow-500 flex items-center gap-1 transition-colors"
+                  className="text-xs font-bold text-slate-500 hover:text-amber-600 flex items-center gap-1 transition-colors"
                 >
                   <ExternalLink className="w-3 h-3" /> ImgBB Album
                 </a>
-                <label className="cursor-pointer text-xs font-bold text-yellow-500 hover:underline flex items-center gap-1">
+                <label className="cursor-pointer text-xs font-bold text-amber-600 hover:underline flex items-center gap-1">
                   {uploadingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
                   <span>{uploadingImg ? "Uploading..." : "Upload File"}</span>
                   <input
@@ -228,12 +228,12 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
               value={image}
               onChange={(e) => setImage(e.target.value)}
               placeholder="https://i.ibb.co/..."
-              className="w-full bg-neutral-900 border border-white/20 focus:border-yellow-500 text-white px-4 py-2.5 text-sm focus:outline-none"
+              className="w-full bg-white border border-stone-300 focus:border-[#0A1F44] text-slate-900 px-4 py-2.5 text-sm rounded-lg focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300 mb-1">
+            <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#0A1F44] mb-1">
               Short Overview
             </label>
             <textarea
@@ -241,12 +241,12 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief summary shown on cards..."
-              className="w-full bg-neutral-900 border border-white/20 focus:border-yellow-500 text-white px-4 py-2 text-sm focus:outline-none resize-none"
+              className="w-full bg-white border border-stone-300 focus:border-[#0A1F44] text-slate-900 px-4 py-2 text-sm rounded-lg focus:outline-none resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-300 mb-1">
+            <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#0A1F44] mb-1">
               Detailed Agenda & Agenda Description
             </label>
             <textarea
@@ -254,22 +254,22 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
               value={fullDetails}
               onChange={(e) => setFullDetails(e.target.value)}
               placeholder="Comprehensive agenda breakdown, panel topics, and key takeaways..."
-              className="w-full bg-neutral-900 border border-white/20 focus:border-yellow-500 text-white px-4 py-2 text-sm focus:outline-none resize-none"
+              className="w-full bg-white border border-stone-300 focus:border-[#0A1F44] text-slate-900 px-4 py-2 text-sm rounded-lg focus:outline-none resize-none"
             />
           </div>
 
-          <div className="pt-4 flex items-center justify-end space-x-3 border-t border-white/10">
+          <div className="pt-4 flex items-center justify-end space-x-3 border-t border-stone-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-white"
+              className="px-5 py-3 text-xs font-serif font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="bg-yellow-500 hover:bg-yellow-400 text-black px-8 py-3 text-xs font-black uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-50"
+              className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 text-xs font-serif font-bold uppercase tracking-widest rounded-lg transition-colors cursor-pointer shadow-md disabled:opacity-50"
             >
               {loading ? "Publishing..." : "Publish Event"}
             </button>

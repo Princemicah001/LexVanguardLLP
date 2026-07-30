@@ -28,7 +28,7 @@ export default function Header() {
 
   return (
     <header className="absolute top-0 left-0 w-full z-50 bg-gradient-to-b from-black/80 to-transparent">
-      <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-4 md:py-6 flex justify-between items-start gap-2">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 md:py-6 flex justify-between items-start gap-2">
         <Link href="/" className="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer group shrink-0">
           {/* Official Brand Logo SVG */}
           <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 shrink-0 transition-transform group-hover:scale-105">

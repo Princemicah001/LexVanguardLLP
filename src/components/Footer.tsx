@@ -3,8 +3,8 @@ import RotatingPhoneDisplay from "@/components/RotatingPhoneDisplay";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#111111] text-gray-400 py-16 px-4">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+    <footer className="bg-[#111111] text-gray-400 py-16 px-6">
+      <div className="w-full px-2 sm:px-6 lg:px-10 grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="col-span-1 text-left">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-10 shrink-0">
@@ -75,7 +75,7 @@ export default function Footer() {
           </ul>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-gray-800 text-xs text-gray-600 flex flex-col md:flex-row justify-between items-center">
+      <div className="w-full px-2 sm:px-6 lg:px-10 mt-16 pt-8 border-t border-gray-800 text-xs text-gray-600 flex flex-col md:flex-row justify-between items-center">
         <p>&copy; 2026 LexVanguard. All rights reserved.</p>
         <div className="flex space-x-6 mt-4 md:mt-0 uppercase tracking-widest font-semibold">
           <a href="#" className="hover:text-gray-300 transition-colors">Privacy Policy</a>

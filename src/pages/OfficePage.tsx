@@ -696,7 +696,7 @@ export default function OfficePage() {
         <Header />
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 space-y-5">
+      <main className="w-full px-4 sm:px-6 lg:px-8 pt-24 pb-12 space-y-5">
 
         {/* Minimalist Header Bar */}
         <div className="bg-white rounded-xl border border-stone-200/80 shadow-2xs p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

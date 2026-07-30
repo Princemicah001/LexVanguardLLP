@@ -456,14 +456,14 @@ export default function AttorneysPage() {
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto px-6 py-14 text-center text-black">
-        <p className="text-gray-600 leading-loose text-lg">
+      <div className="w-full px-6 py-14 text-center text-black">
+        <p className="text-gray-600 leading-loose text-lg max-w-5xl mx-auto">
           At LexVanguard, our greatest asset is our exceptional team of legal minds. From seasoned litigators who have shaped landmark appellate decisions to innovative strategists guiding the next generation of tech enterprises, our attorneys merge a modern mindset with the traditional practices we value.
         </p>
       </div>
 
-      <div className="max-w-[1300px] mx-auto px-6 pb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+      <div className="w-full px-6 sm:px-10 lg:px-16 pb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {visibleMembers.map((m, idx) => (
             <AttorneyCard
               key={`${m.uid || 'member'}-${m.name}-${idx}`}

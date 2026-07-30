@@ -33,6 +33,7 @@ export interface FirmEvent {
   registeredCount: number;
   agenda: AgendaItem[];
   status: "Upcoming" | "Live Now" | "Past Event";
+  gallery?: string[];
   recapUrl?: string;
   createdAt?: string;
   createdBy?: string;
@@ -194,6 +195,14 @@ export const INITIAL_EVENTS: FirmEvent[] = [
     capacity: 400,
     registeredCount: 400,
     status: "Past Event",
+    gallery: [
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80"
+    ],
     recapUrl: "#",
     speakers: [
       { name: "Prince Micah", role: "Founding Partner & Co-Owner", uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1" },

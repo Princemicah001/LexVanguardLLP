@@ -23,23 +23,25 @@ export default function HistoryPage() {
       </div>
 
       {/* About */}
-      <div className="max-w-4xl mx-auto px-6 py-20 text-center">
+      <div className="w-full px-6 sm:px-10 lg:px-16 py-20 text-center">
         <p className="text-yellow-600 uppercase tracking-[0.2em] text-xs font-bold mb-4">Our Story</p>
         <h2 className="text-3xl font-extrabold text-black mb-8 uppercase tracking-wide">From Vision to Reality</h2>
-        <p className="text-gray-700 leading-loose text-lg mb-6">
-          In the competitive landscape of legal education, where theory often meets the daunting threshold of practice, few organizations stand as beacons of excellence and opportunity. LexVanguard is one such institution. Recognized as one of the most prestigious student-led law firms at Mounk Kenya University, its reputation extends scalably across the country, marking it not merely as a university society, but as a formidable incubator for legal talent.
-        </p>
-        <p className="text-gray-600 leading-loose text-base mb-6">
-          The foundation of LexVanguard's success lies in its deeply ingrained culture of inclusivity. The firm operates on the belief that the pursuit of justice is not the exclusive domain of the privileged few, but a calling that requires only spirit and tenacity. By welcoming a diversity of perspectives, backgrounds, and intellectual approaches, the firm ensures that every member contributes uniquely to the collective pursuit of justice.
-        </p>
-        <p className="text-gray-600 leading-loose text-base">
-          Membership within LexVanguard is structured around a set of core principles that elevate the group from a simple club to a professional entity. The pillars of this community are co-working, professionalism, friendship, respect, and, above all, teamwork. In the high-stakes world of legal practice, isolation is a liability — recognizing this, LexVanguard fosters a co-working environment where students collaborate on complex case studies, share research burdens, and refine arguments together.
-        </p>
+        <div className="max-w-5xl mx-auto space-y-6">
+          <p className="text-gray-700 leading-loose text-lg">
+            In the competitive landscape of legal education, where theory often meets the daunting threshold of practice, few organizations stand as beacons of excellence and opportunity. LexVanguard is one such institution. Recognized as one of the most prestigious student-led law firms at Mounk Kenya University, its reputation extends scalably across the country, marking it not merely as a university society, but as a formidable incubator for legal talent.
+          </p>
+          <p className="text-gray-600 leading-loose text-base">
+            The foundation of LexVanguard's success lies in its deeply ingrained culture of inclusivity. The firm operates on the belief that the pursuit of justice is not the exclusive domain of the privileged few, but a calling that requires only spirit and tenacity. By welcoming a diversity of perspectives, backgrounds, and intellectual approaches, the firm ensures that every member contributes uniquely to the collective pursuit of justice.
+          </p>
+          <p className="text-gray-600 leading-loose text-base">
+            Membership within LexVanguard is structured around a set of core principles that elevate the group from a simple club to a professional entity. The pillars of this community are co-working, professionalism, friendship, respect, and, above all, teamwork. In the high-stakes world of legal practice, isolation is a liability — recognizing this, LexVanguard fosters a co-working environment where students collaborate on complex case studies, share research burdens, and refine arguments together.
+          </p>
+        </div>
       </div>
 
       {/* Timeline */}
       <div className="bg-black py-20 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="w-full px-4 sm:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-extrabold text-white uppercase tracking-wider mb-4">Our Journey</h2>
             <div className="h-1 w-16 bg-yellow-500 mx-auto" />

@@ -308,7 +308,7 @@ export default function ResearchCoHelperPage() {
       
       {/* HEADER BAR */}
       <header className="bg-white border-b border-slate-200 shadow-xs sticky top-0 z-20 shrink-0">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="w-full px-3 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center py-2 sm:py-0 min-h-16 gap-2 sm:gap-4">
             
             {/* BRANDING & BACK */}
@@ -422,7 +422,7 @@ export default function ResearchCoHelperPage() {
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 overflow-y-auto lg:overflow-hidden relative p-3 sm:p-4 md:p-6">
-        <div className="w-full h-full max-w-7xl mx-auto relative flex flex-col">
+        <div className="w-full h-full relative flex flex-col">
 
           {/* TAB: DIRECT MEMBER DMS */}
           {activeTab === "dms" && (
